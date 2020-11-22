@@ -11,10 +11,10 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq00_linux'
+projectName='qynq01_uboot'
 buildUboot='1'
 buildKernel='1'
-buildFw='1'
+buildFw='0'
 buildBootBin='1'
 
 if [ ! $1 -eq '' ]; then
@@ -28,6 +28,8 @@ fi
 depends=('u-boot-xlnx' 'git clone https://github.com/Xilinx/u-boot-xlnx.git' 
          'linux-Digilent-Dev' 'git clone http://github.com/Digilent/linux-Digilent-Dev' 
          'qynq_base' 'git clone http://github.com/qiweiii-git/qynq_base.git')
+
+patchs=( 'u-boot-xlnx' 'u-boot.patch' )
 
 #*****************************************************************************
 # Set environment
@@ -45,11 +47,12 @@ if [ ! -d .depend ]; then
    echo "Info: .depend created"
 fi
 
-dependLen=${#depends[*]}
+dependCnt=${#depends[*]}
+patchsCnt=${#patchs[*]}
 
-if (( $dependLen > 0 )); then
+if (( $dependCnt > 0 )); then
    cd .depend
-   for((i=0; i<dependLen; i=i+2))
+   for((i=0; i<dependCnt; i=i+2))
    do
       if [ ! -d ${depends[i]} ]; then
          echo "Getting ${depends[i]}"
@@ -75,13 +78,32 @@ MkdirBuild
 # Build u-boot
 #*****************************************************************************
 BuildUboot() {
-   #cd .build/.depend/u-boot-xlnx
    cd .depend/u-boot-xlnx
    git checkout xilinx-v2015.4
-   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- zynq_zed_config
+
+   patchApply='0'
+   if (( $patchsCnt > 0 )); then
+      for((i=0; i<patchsCnt; i=i+2))
+      do
+         if [[ ${patchs[i]} -eq 'u-boot-xlnx' ]]; then
+            echo "Applying patch for ${patchs[i]}"
+            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+            patchApply='1'
+         fi
+      done
+   fi
+
+   if [[ $patchApply -eq '1' ]]; then
+      make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- qynq_config
+   else
+      make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- zynq_zed_config
+   fi
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
 
    cp u-boot $workDir/project/$projectName/bin
+   make clean
+   make mrproper
+   git add ./ --all
    git reset --hard HEAD
    cd $workDir
 }

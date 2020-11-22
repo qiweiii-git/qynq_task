@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-hans" dir="ltr" >
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<head>
+  <link rel="profile" href="http://www.w3.org/1999/xhtml/vocab" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="canonical" href="http://xilinx.eetrend.com/content/2019/100018437.html" />
+<link rel="canonical" href="/content/2019/100018437.html" />
+<link rel="shortlink" href="/node/100018437" />
+<link rel="shortcut icon" href="http://xilinx.eetrend.com/sites/all/themes/Xilinx/favicon.ico" type="image/vnd.microsoft.icon" />
+  <title>ZYNQ Linux操作系统移植说明文档 | 电子创新网赛灵思社区</title>
+  <style>
+@import url("http://xilinx.eetrend.com/modules/system/system.base.css?qiqk5n");
+</style>
+<style>
+@import url("http://xilinx.eetrend.com/sites/all/modules/date/date_api/date.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/sites/all/modules/date/date_popup/themes/datepicker.1.7.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/sites/all/modules/domain/domain_nav/domain_nav.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/modules/field/theme/field.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/modules/node/node.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/sites/all/modules/views/css/views.css?qiqk5n");
+</style>
+<style>
+@import url("http://xilinx.eetrend.com/sites/all/modules/ctools/css/ctools.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/sites/all/modules/video/css/video.css?qiqk5n");
+</style>
+<style>
+@import url("http://xilinx.eetrend.com/sites/all/themes/Xilinx/css/bootstrap.min.Xilinx.css?qiqk5n");
+@import url("http://xilinx.eetrend.com/sites/all/themes/Xilinx/css/style.css?qiqk5n");
+</style>
+  <!-- HTML5 element support for IE6-8 -->
+  <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+  <script src="http://xilinx.eetrend.com/sites/all/modules/jquery_update/replace/jquery/1.9/jquery.min.js?v=1.9.1"></script>
+<script src="http://xilinx.eetrend.com/misc/jquery-extend-3.4.0.js?v=1.9.1"></script>
+<script src="http://xilinx.eetrend.com/misc/jquery-html-prefilter-3.5.0-backport.js?v=1.9.1"></script>
+<script src="http://xilinx.eetrend.com/misc/jquery.once.js?v=1.2"></script>
+<script src="http://xilinx.eetrend.com/misc/drupal.js?qiqk5n"></script>
+<script src="http://xilinx.eetrend.com/sites/all/modules/autoupload/js/autoupload.js?qiqk5n"></script>
+<script src="http://xilinx.eetrend.com/files/languages/zh-hans_44wlkukAZzKCqtCKyR9rumkLi4aPWtPCVI3_-wvuTXo.js?qiqk5n"></script>
+<script src="http://xilinx.eetrend.com/sites/all/modules/video/js/video.js?qiqk5n"></script>
+<script src="http://xilinx.eetrend.com/sites/all/themes/Xilinx/js/bootstrap.min.js?qiqk5n"></script>
+<script>jQuery.extend(Drupal.settings, {"basePath":"\/","pathPrefix":"","ajaxPageState":{"theme":"Xilinx","theme_token":"8hJgXrrH2BgJ42DEcqnE0hDU433CQbKnMurBiJG-V7c","js":{"modules\/statistics\/statistics.js":1,"sites\/all\/themes\/bootstrap\/js\/bootstrap.js":1,"sites\/all\/modules\/jquery_update\/replace\/jquery\/1.9\/jquery.min.js":1,"misc\/jquery-extend-3.4.0.js":1,"misc\/jquery-html-prefilter-3.5.0-backport.js":1,"misc\/jquery.once.js":1,"misc\/drupal.js":1,"sites\/all\/modules\/autoupload\/js\/autoupload.js":1,"public:\/\/languages\/zh-hans_44wlkukAZzKCqtCKyR9rumkLi4aPWtPCVI3_-wvuTXo.js":1,"sites\/all\/modules\/video\/js\/video.js":1,"sites\/all\/themes\/Xilinx\/js\/bootstrap.min.js":1},"css":{"modules\/system\/system.base.css":1,"sites\/all\/modules\/date\/date_api\/date.css":1,"sites\/all\/modules\/date\/date_popup\/themes\/datepicker.1.7.css":1,"sites\/all\/modules\/domain\/domain_nav\/domain_nav.css":1,"modules\/field\/theme\/field.css":1,"modules\/node\/node.css":1,"sites\/all\/modules\/views\/css\/views.css":1,"sites\/all\/modules\/ctools\/css\/ctools.css":1,"sites\/all\/modules\/video\/css\/video.css":1,"sites\/all\/themes\/Xilinx\/css\/bootstrap.min.Xilinx.css":1,"sites\/all\/themes\/Xilinx\/css\/style.css":1}},"urlIsAjaxTrusted":{"http:\/\/xilinx.eetrend.com\/content\/2019\/100018437.html":true,"http:\/\/xilinx.eetrend.com\/content\/2019\/100018437.html?destination=node\/100018437":true},"statistics":{"data":{"nid":"100018437"},"url":"\/modules\/statistics\/statistics.php"},"bootstrap":{"anchorsFix":"0","anchorsSmoothScrolling":"0","formHasError":1,"popoverEnabled":1,"popoverOptions":{"animation":1,"html":0,"placement":"right","selector":"","trigger":"click","triggerAutoclose":1,"title":"","content":"","delay":0,"container":"body"},"tooltipEnabled":1,"tooltipOptions":{"animation":1,"html":0,"placement":"auto left","selector":"","trigger":"hover focus","delay":0,"container":"body"}}});</script>
+</head>
+<body class="navbar-is-fixed-top html not-front not-logged-in two-sidebars page-node page-node- page-node-100018437 node-type-article domain-xilinx-eetrend-com">
+  <div id="skip-link">
+    <a href="#main-content" class="element-invisible element-focusable">跳转到主要内容</a>
+  </div>
+    <header id="navbar" role="banner" class="navbar navbar-fixed-top navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+              <a class="logo navbar-btn pull-left" href="/" title="首页">
+          <img src="http://xilinx.eetrend.com/sites/all/themes/Xilinx/logo.svg" alt="首页" />
+        </a>
+      
+              <a class="name navbar-brand" href="/" title="首页">电子创新网赛灵思社区</a>
+      
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          </div>
+
+          <div class="navbar-collapse collapse" id="navbar-collapse">
+        <nav role="navigation">
+                      <ul class="menu nav navbar-nav"><li class="first leaf"><a href="/news" title="">新闻</a></li>
+<li class="leaf"><a href="/video" title="">视频</a></li>
+<li class="leaf"><a href="/blog" title="">博客</a></li>
+<li class="leaf"><a href="https://forums.xilinx.com/t5/%E8%B5%9B%E7%81%B5%E6%80%9D%E4%B8%AD%E6%96%87%E7%A4%BE%E5%8C%BA%E8%AE%BA%E5%9D%9B/ct-p/Chinese" title="">互动专区</a></li>
+<li class="leaf"><a href="/technology" title="">技术文章</a></li>
+<li class="leaf"><a href="/download" title="">下载中心</a></li>
+<li class="leaf"><a href="https://xilinx-wiki.atlassian.net/wiki/spaces/A/overview" title="">Xilinx Wiki</a></li>
+<li class="leaf"><a href="/activity" title="">活动</a></li>
+<li class="last leaf"><a href="http://mall.eetrend.com/" title="">商城</a></li>
+</ul>                                <ul class="menu nav navbar-nav secondary"><li class="first leaf"><a href="/user/login?current=node/100018437" title="">登录</a></li>
+<li class="last leaf"><a href="/user/register" title="">注册</a></li>
+</ul>                            </nav>
+      </div>
+      </div>
+</header>
+
+<div class="main-container container">
+
+  <header role="banner" id="page-header">
+              </header> <!-- /#page-header -->
+
+  <div class="row">
+
+          <aside class="col-sm-2" role="complementary">
+          <div class="region region-sidebar-first">
+    <div class="visible-lg">
+<section id="block-search-form" class="block block-search clearfix">
+
+      
+  <form class="form-search content-search" action="http://xilinx.eetrend.com/content/2019/100018437.html" method="post" id="search-block-form" accept-charset="UTF-8"><div><div>
+      <h2 class="element-invisible">搜索表单</h2>
+    <div class="input-group"><input title="请输入您想搜索的关键词。" placeholder="搜索" class="form-control form-text" type="text" id="edit-search-block-form--2" name="search_block_form" value="" size="15" maxlength="128" /><span class="input-group-btn"><button type="submit" class="btn btn-primary"><span class="icon glyphicon glyphicon-search" aria-hidden="true"></span>
+</button></span></div><div class="form-actions form-wrapper form-group" id="edit-actions"><button class="element-invisible btn btn-primary form-submit" type="submit" id="edit-submit" name="op" value="搜索">搜索</button>
+</div><input type="hidden" name="form_build_id" value="form-aGJBN1LTUjJhuvwkBXGLsp11t4FvvcgntOksbbtq6ao" />
+<input type="hidden" name="form_id" value="search_block_form" />
+</div>
+</div></form>
+</section>
+</div><div class="visible-lg">
+<section id="block-menu-menu-xilinx-left-block01" class="block block-menu clearfix">
+
+        <h2 class="block-title">开发者专区</h2>
+    
+  <ul class="menu nav"><li class="first leaf"><a href="https://china.xilinx.com/products/design-tools/software-zone.html" title="">软件开发专区</a></li>
+<li class="leaf"><a href="https://china.xilinx.com/products/design-tools/hardware-zone.html" title="">硬件开发专区</a></li>
+<li class="leaf"><a href="https://china.xilinx.com/products/design-tools/system-zone.html" title="在当前竞争非常激烈的市场上，能快速进行原型设计，验证和部署复杂的系统，就能获得显著的产品上市时间优势。Xilinx SoC、MPSoC 和 RFSoC 器件将处理器的软件可编程性与 FPGA 的硬件可编程性进行完美整合，可为您提供无与伦比的系统性能、灵活性与可扩展性。 将不同领域的复杂子系统整合在一起，可能需要许多年的工程设计工作。Xilinx 与 The Mathworks™ 及 National Instruments™ 等世界一流的合作伙伴密切合作，可实现快速的系统开发。">系统开发专区</a></li>
+<li class="leaf"><a href="https://china.xilinx.com/products/design-tools/acceleration-zone.html" title="可重配置加速
+开发并部署云级平台">加速专区</a></li>
+<li class="leaf"><a href="https://china.xilinx.com/products/design-tools/cloud-based-acceleration.html" title="可重配置的云加速">加速云服务</a></li>
+<li class="leaf"><a href="https://china.xilinx.com/products/design-tools/embedded-vision-zone.html" title="reVISION 专区汇集了各种实用资源，可充分满足软硬件及系统开发人员的需求。">reVISION 专区</a></li>
+<li class="last leaf"><a href="https://china.xilinx.com/applications/megatrends/machine-learning.html" title="最快的实时推断">AI 推断加速</a></li>
+</ul>
+</section>
+</div><div class="visible-lg">
+<section id="block-views-taxonomy-list-block-1" class="block block-views clearfix">
+
+        <h2 class="block-title">产品与工具</h2>
+    
+  <div class="view view-taxonomy-list view-id-taxonomy_list view-display-id-block_1 view-dom-id-6dd585dd82f290ce87dfcd094a50f2db">
+        
+  
+  
+      <div class="view-content">
+      <div class="item-list">    <ul class="menu nav">          <li class="">  
+          <a href="/tag/5180.html">7系列FPGA</a>  </li>
+          <li class="">  
+          <a href="/tag/5137.html">ACAP</a>  </li>
+          <li class="">  
+          <a href="/tag/5175.html">Kintex UltraScale</a>  </li>
+          <li class="">  
+          <a href="/tag/5148.html">reVISION</a>  </li>
+          <li class="">  
+          <a href="/tag/5172.html">RFSoc</a>  </li>
+          <li class="">  
+          <a href="/tag/5158.html">SDAccel开发环境</a>  </li>
+          <li class="">  
+          <a href="/tag/5171.html">SDNet</a>  </li>
+          <li class="">  
+          <a href="/tag/5170.html">SDSoC开发环境</a>  </li>
+          <li class="">  
+          <a href="/tag/5173.html">UltraFast</a>  </li>
+          <li class="">  
+          <a href="/tag/5174.html">UltraScale+</a>  </li>
+          <li class="">  
+          <a href="/tag/5176.html">Virtex UltraScale</a>  </li>
+          <li class="">  
+          <a href="/tag/7006.html">Vitis</a>  </li>
+          <li class="">  
+          <a href="/tag/5178.html">Vivado</a>  </li>
+          <li class="">  
+          <a href="/tag/5179.html">ZYNQ</a>  </li>
+          <li class="">  
+          <a href="/tag/5177.html">Zynq MPSoC</a>  </li>
+      </ul></div>    </div>
+  
+  
+  
+  
+  
+  
+</div>
+</section>
+</div><div class="visible-lg">
+<section id="block-views-taxonomy-list-block" class="block block-views clearfix">
+
+        <h2 class="block-title">解决方案</h2>
+    
+  <div class="view view-taxonomy-list view-id-taxonomy_list view-display-id-block view-dom-id-11231dc08683c978d51178de10d7e111">
+        
+  
+  
+      <div class="view-content">
+      <div class="item-list">    <ul class="menu nav">          <li class="">  
+          <a href="/tag/5143.html">汽车</a>  </li>
+          <li class="">  
+          <a href="/tag/5153.html">广播与专业A/V</a>  </li>
+          <li class="">  
+          <a href="/tag/5161.html">消费类</a>  </li>
+          <li class="">  
+          <a href="/tag/5162.html">数据中心</a>  </li>
+          <li class="">  
+          <a href="/tag/5163.html">仿真与原型设计</a>  </li>
+          <li class="">  
+          <a href="/tag/5164.html">高性能计算</a>  </li>
+          <li class="">  
+          <a href="/tag/5165.html">工业</a>  </li>
+          <li class="">  
+          <a href="/tag/5166.html">医疗</a>  </li>
+          <li class="">  
+          <a href="/tag/5167.html">测试与测量</a>  </li>
+          <li class="">  
+          <a href="/tag/5168.html">有线通信</a>  </li>
+          <li class="">  
+          <a href="/tag/5169.html">无线通信</a>  </li>
+      </ul></div>    </div>
+  
+  
+  
+  
+  
+  
+</div>
+</section>
+</div>  </div>
+      </aside>  <!-- /#sidebar-first -->
+    
+        <section class="col-sm-7">
+    
+          <a id="main-content"></a>
+                    <h1 class="page-header">ZYNQ Linux操作系统移植说明文档</h1>
+                                                          <div class="region region-content">
+    <section id="block-system-main" class="block block-system clearfix">
+
+      
+  <article id="node-100018437" class="node node-article node-promoted node-sticky clearfix">
+    <header>
+                    <span class="submitted">
+            <span class="username">judy</span> 在 周二, 03/19/2019 - 10:55 提交    </span>
+      </header>
+  
+  <!--
+This file is not used by Drupal core, which uses theme functions instead.
+See http://api.drupal.org/api/function/theme_field/7 for details.
+After copying this file to your theme's folder and customizing it, remove this
+HTML comment.
+-->
+<div class="field field-name-body field-type-text-with-summary field-label-hidden">
+    <div class="field-items">
+          <div class="field-item even"><p><strong>一、组成</strong><br />
+ZYNQ上面移植Linux操作系统包括四个部分，uboot,devicetree,kernel,ramdisk.</p>
+<p>其中uboot类似于bios，负责对设备进行简单的初始化，devicetree以树的形式对zynq相连的硬件设备进行描述，kernel是加载的操作系统内核，ramdisk是操作系统启动之后挂载的文件系统。<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63607-tu1.png" alt="" /></center> 
+<p><strong>二、启动过程</strong><br />
+移植操作系统后zynq的启动过程如下，首先加载bootrom（zynq中自带，用户无法修改），然后执行fsbl（这个根据硬件在sdk中创建），然后执行uboot，uboot会将kernel、devicetree和ramdisk载入ddr，跳转到内核入口处执行，这样linux就启动了。<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63608-tu2.png" alt="" /></center> 
+<p>对bootrom、fsbl和uboot详细描述如下。<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63609-tu3.png" alt="" /></center> 
+<p><strong>三、uboot设置</strong><br />
+uboot可以从xilinx 官方github上面下载，地址是：</p>
+<p>通常uboot不需要升级，目前使用的版本为xilinx 2015年底发布的版本2015.4.不过针对不同的模块uboot需要进行修改，主要修改下面几个地方。</p>
+<p>1、参考时钟修改<br />
+地址位于arch\arm\cpu\armv7\zynq\clk.c</p>
+<p>由于ZYNQ设计大多使用50M参考时钟，需要更改参考时钟</p>
+<p># define CONFIG_ZYNQ_PS_CLK_FREQ  33333333UL更改为</p>
+<p># define CONFIG_ZYNQ_PS_CLK_FREQ  50000000UL</p>
+<p>2、串口配置修改<br />
+地址位于include\configs\zynq_zc70x.h</p>
+<p>根据硬件串口情况进行配置</p>
+<p>#define CONFIG_ZYNQ_SERIAL_UART1 使用串口1</p>
+<p>#define CONFIG_ZYNQ_SERIAL_UART0 使用串口0</p>
+<p>如果两个串口都启用，一起配置即可。</p>
+<p>3、DDR配置修改<br />
+地址位于include\configs\zynq_zc70x.h</p>
+<p>根据DDR实际大小地址修改配置参数</p>
+<p>#define CONFIG_SYS_SDRAM_SIZE                  (1024 * 1024 * 1024) 1GB DDR</p>
+<p>#define CONFIG_SYS_SDRAM_SIZE                  (512 * 1024 * 1024)  512MB DDR</p>
+<p>4、PHY地址配置<br />
+地址位于include\configs\zynq_zc70x.h</p>
+<p>根据硬件PHY地址进行配置，通常硬件会将PHY地址设置为0</p>
+<p>#define CONFIG_ZYNQ_GEM_PHY_ADDR0   0</p>
+<p>如果硬件启用了两个网卡，则需要设置两个PHY的地址</p>
+<p>#define CONFIG_ZYNQ_GEM0</p>
+<p>#define CONFIG_ZYNQ_GEM_PHY_ADDR0   1</p>
+<p> <br />
+#define CONFIG_ZYNQ_GEM1</p>
+<p>#define CONFIG_ZYNQ_GEM_PHY_ADDR1   18</p>
+<p>5、启动方式配置<br />
+地址位于include\configs\zynq_common.h</p>
+<p>如果使用QSPI flash方式启动，需要配置QSPI FLASH对应地址，如下。</p>
+<p>"sf probe 0 0 0 &amp;&amp; " \</p>
+<p>                   "sf read 0x3000000 0x400000 ${kernel_size} &amp;&amp; " \</p>
+<p>                   "sf read 0x2A00000 0x900000 ${devicetree_size} &amp;&amp; " \</p>
+<p>                   "echo Copying ramdisk... &amp;&amp; " \</p>
+<p>                   "sf read 0x2000000 0x920000 ${ramdisk_size} &amp;&amp; " \</p>
+<p>                   "bootm 0x3000000 0x2000000 0x2A00000\0" \</p>
+<p>6、IP地址配置<br />
+地址位于include\configs\zynq_common.h</p>
+<p>#define CONFIG_IPADDR                  192.168.100.12 //uboot启动时板子的IP地址</p>
+<p>#define CONFIG_SERVERIP               192.168.100.6 //uboot启动时能访问的远程服务器地址，若采用TFTP加载，需要将本地电脑配置为该地址</p>
+<p>7、启动延迟设置<br />
+地址位于include\configs\zynq_common.h</p>
+<p>#define CONFIG_BOOTDELAY          7 /* -1 to Disable autoboot */</p>
+<p>Uboot默认延迟7s再从QSPI flash中加载操作系统，如果设置为-1表明禁止自动加载</p>
+<p>8、初始化设置<br />
+地址位于net\eth.c  和 arch\arm\lib\board.c</p>
+<p>Uboot中需要对5396进行初始化，同时使用GPIO对PHY或NOR FLASH等进行复位，可以在eth.c中增加代码</p>
+<p>void mygpio_init()</p>
+<p>{    }</p>
+<p>然后将Mygpio_init()加入到arch\arm\lib\board.c中</p>
+<p>9、Uboot编译<br />
+修改完成后，可以使用下列命令编译产生uboot</p>
+<p>进入u-boot文件夹</p>
+<p>$ make distclean  //文件夹清理</p>
+<p>$ make zynq_zc70x_config // 载入配置，通常使用zynq_zc70x.h文件<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63610-tu4.png" alt="" /></center> 
+<p>$ make</p>
+<p>编译完成后文件夹下会出现u-boot文件，将其修改为u-boot.elf<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63611-tu5.png" alt="" /></center> 
+<p><strong>四、devicetree设置</strong><br />
+devicetree源文件可以从xilinx官方下载，地址：<a href="https://github.com/Xilinx/device-tree-xlnx/releases">https://github.com/Xilinx/device-tree-xlnx/releases</a></p>
+<p>不同板子的devicetree可以根据xilinx sdk生成，操作过程如下。</p>
+<p>1、在XILINX SDK中打开板子的ZYNQ工程，在xilinx tools中添加devicetree的源文件地址<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63612-tu6.png" alt="" /></center> 
+<p>2、创建devicetree BSP文件<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63613-tu7.png" alt="" /></center> 
+<p>创建完成后得到文件如下<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63614-tu8.png" alt="" /></center> 
+<p>3、将dtsi,dts文件拷入linux系统下，使用dts工具制作devicetree.dtb文件<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63615-tu9.png" alt="" /></center> 
+<p>4、如果需要修改devicetree文件，可以通过dtc工具转换为可读文件dts<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63616-tu10.png" alt="" /></center> 
+<p>生成的1.dts可打开，里面能看到zynq端的外设信息和启用情况。通常需要修改网卡配置，如下，下例中phy地址为0</p>
+<p>ethernet@e000b000 {</p>
+<p>                            compatible = "xlnx,ps7-ethernet-1.00.a";</p>
+<p>                            reg = ;</p>
+<p>                            status = "okay";</p>
+<p>                            interrupt-parent = ;</p>
+<p>                            interrupts = ;</p>
+<p>                            clocks = ;</p>
+<p>                            clock-names = "ref_clk", "aper_clk";</p>
+<p>                            #address-cells = ;</p>
+<p>                            #size-cells = ;</p>
+<p>                            enet-reset = ;</p>
+<p>                            local-mac-address = [00 0a 35 00 00 00];</p>
+<p>                            phy-mode = "rgmii";</p>
+<p>                            phy-handle = ;</p>
+<p>                            xlnx,eth-mode = ;</p>
+<p>                            xlnx,has-mdio = ;</p>
+<p>                            xlnx,ptp-enet-clock = ;</p>
+<p> </p>
+<p>                            mdio {</p>
+<p>                                     #address-cells = ;</p>
+<p>                                     #size-cells = ;</p>
+<p> </p>
+<p>                                     phy@0 {</p>
+<p>                                               compatible = "marvell,88e1111";</p>
+<p>                                               device_type = "ethernet-phy";</p>
+<p>                                               reg = ;</p>
+<p>                                               linux,phandle = ;</p>
+<p>                                               phandle = ;</p>
+<p>                                     };</p>
+<p>                            };</p>
+<p>                   };</p>
+<p>当对dts修改完成后，再次使用dtc工具编译产生devicetree.dtb即可</p>
+<p><strong>五、文件系统设置</strong><br />
+文件系统一般随zynq开发板发布，可以从prebuit中找到文件系统的tar文件<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63617-tu11.png" alt="" /></center> 
+<p>解压后得到的文件如下<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63618-tu12.png" alt="" /></center> 
+<p>在文件系统中，如果需要添加用户自定义的shell脚本或可执行程序，可以放在/usr/bin目录下。如果要设置系统自启动项，可以在/etc/rc5.d中增加shell脚本。<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63619-tu13.png" alt="" /></center> 
+<p>这里进行了IP地址的配置<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63620-tu14.png" alt="" /></center> 
+<p>1、文件系统制作<br />
+当修改完rootfs后，可以通过下面命令制作uramdisk文件系统</p>
+<p>$sh -c 'cd rootfs/ &amp;&amp; find . | cpio -H newc -o' | gzip -9 &gt; new_initramfs.cpio.gz</p>
+<p> $mkimage -A arm -T ramdisk -C gzip -d new_initramfs.cpio.gz uramdisk.image.gz</p>
+<p>执行完毕将会得到uramdisk.image.gz</p>
+<p><strong>六、内核配置</strong><br />
+内核可以从xilinx官方git下载，地址：</p>
+<p>目前linux内核中已经集成了常见的驱动，驱动源码位于drivers文件夹下。针对内核的修改位于 arch\arm\configs\xilinx_zynq_defconfig文件中，该文件中定义了内核所包含的驱动程序。</p>
+<p>1、调试输出打印<br />
+在xilinx_zynq_defconfig中，需要根据硬件设计正确配置串口打印。</p>
+<p>CONFIG_DEBUG_LL=y</p>
+<p>CONFIG_DEBUG_ZYNQ_UART0=y //使用串口0打印输出</p>
+<p>CONFIG_EARLY_PRINTK=y</p>
+<p>2、内核编译<br />
+修改完xilinx_zynq_defconfig后，可以使用下面命令编译内核</p>
+<p>$sudo //编译内核需要运行在root权限下</p>
+<p>$make distclean //清理文件</p>
+<p>$make ARCH=arm xilinx_zynq_defconfig //读取内核配置信息，即xilinx_zynq_defconfig中的内容</p>
+<p>$make ARCH=arm menuconfig //进入内核菜单进行可视化配置，如果xilinx_zynq_defconfig中对内核配置准确时，该步骤可以省略</p>
+<p>$make ARCH=arm UIMAGE_LOADADDR=0x8000 uImage -j4 //编译产生uImage</p>
+<p>产生的文件位于arch\arm\boot文件夹内<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63621-tu15.png" alt="" /></center> 
+<p><strong>七、常见驱动</strong><br />
+1、I2C驱动<br />
+目前板子上都会用到I2C，首先需要知道I2C从设备的地址，如2\4\8这些.在devicetree中进行设置<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63622-tu16.png" alt="" /></center> 
+<p>在内核中添加1848的驱动<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63623-tu17.png" alt="" /></center> 
+<p>编译内核的时候加入该驱动，同时修改makefile和kconfig文件<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63626-tu18.png" alt="" /></center> 
+<p>这样在编译内核的时候就能看到将驱动编进内核的选项了。<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63628-tu19.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63631-tu20.png" alt="" /></center> 
+<p>编译完内核后，启动时就能看到1848的从设备<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63633-tu21.png" alt="" /></center>
+<p>2、ADC驱动<br />
+ADC为ZYNQ用来监测电压或电流的通道，目前ZYNQ中集成了16个通道，首先需要在devicetree中设置启用的通道，图中启用的是0,1,8三个通道<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63634-tu22.png" alt="" /></center>
+<p>内核中启用ADC驱动<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63635-tu23.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63636-tu24.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63637-tu25.png" alt="" /></center>
+<p>系统启动后就能看到输出了，这里输出的是温度值<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63638-tu26.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63640-tu27.png" alt="" /></center>
+<p>实际温度还需要进行换算，结果如下<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63641-tu28.png" alt="" /></center>
+<p>3、NOR FLASH驱动<br />
+NOR FLAHS驱动主要实现文件系统的挂载，这里不需要设置devicetree，只需要在内核中添加挂载文件系统的代码<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63642-tu29.png" alt="" /></center>
+<p>上图中将NOR FALSH分为2个区，大小分别为32MB和64MB，需要注意的是NOR FLASH的起始地址和容量大小设置</p>
+<p>#defineWINDOW_ADDR 0x80000000 //和vivado里面的emc起始地址一致</p>
+<p>#defineWINDOW_SIZE 0x8000000 //nor flash大小</p>
+<p>在makefile中将该驱动编译进内核即可<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63643-tu30.png" alt="" /></center> 
+<p>启动后就能看到挂载的文件系统了<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63644-tu31.png" alt="" /></center> 
+<p>4、外部中断驱动<br />
+当zynq接收来自外部的GPIO中断时，需要使用UIO机制及时响应中断，首先在devicetree中模拟出四个GPIO设备<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63645-tu32.png" alt="" /></center> 
+<p>注意上面的中断号0x1e-0x21要与硬件实际相连的中断管脚一致。</p>
+<p>同时在devicetree中启用UIO机制<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63646-tu33.png" alt="" /></center> 
+<p>在编译内核时将UIO驱动编译进内核<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63647-tu34.png" alt="" /></center> 
+<p>当操作系统启动完成后就能看到四个外部GPIO设备产生的中断了<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63648-tu35.png" alt="" /></center> 
+<p><strong>八、启动文件制作</strong><br />
+如下图所示，在SDK中创建boot.bin需要包含下面五个文件</p>
+<p>Fsbl.elf</p>
+<p>Zynq_top.bin</p>
+<p>u-boot.elf</p>
+<p>uImage</p>
+<p>devicetree.dtb</p>
+<p>uramdisk.image.gz</p>
+<p>制作过程中需要正确配置uimage,devicetree.dtb,uramdisk.image.gz的地址，让其与u-boot中从QSPI flash加载地址匹配<br /></p><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63649-tu36.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63650-tu37.png" alt="" /></center><br /><center><img src="http://xilinx.eetrend.com/files/2019-03/wen_zhang_/100018437-63651-tu38.png" alt="" /></center> 
+<p>制作完成后将boot.bin通过下载电缆烧入QSPI FLASH中即可。</p>
+<h3><font color="red"><br />
+文章来源：<a href="https://blog.csdn.net/zhaoxinfan">Felven</a>的博客 <br />
+*本文由作者授权转发，如需转载请联系作者本人<br /><br /></font></h3>
+</div>
+      </div>
+</div>
+<!--
+This file is not used by Drupal core, which uses theme functions instead.
+See http://api.drupal.org/api/function/theme_field/7 for details.
+After copying this file to your theme's folder and customizing it, remove this
+HTML comment.
+-->
+<div class="field field-name-field-keywords field-type-taxonomy-term-reference field-label-hidden">
+    <div class="field-items">
+          <div class="field-item even"><a href="/tag/linux">LINUX</a></div>
+          <div class="field-item odd"><a href="/tag/%E7%B3%BB%E7%BB%9F%E7%A7%BB%E6%A4%8D">系统移植</a></div>
+      </div>
+</div>
+
+<div>
+    <div class="bdsharebuttonbox"><a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a><a href="#" class="bds_sqq" data-cmd="sqq" title="分享到QQ好友"></a><a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a><a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a></div>
+    <script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+</div> 
+     <footer>
+            </footer>
+      </article>
+
+</section>
+
+<section id="block-views-relate-node-hidden-lg" class="block block-views clearfix">
+
+        <h2 class="block-title">推荐阅读</h2>
+    
+  <div class="view view-relate-node view-id-relate_node view-display-id-hidden_lg view-dom-id-6ad87bd2ed9fb3dd1b7359e165738c08">
+        
+  
+  
+      <div class="view-content">
+      <div class="item-list">    <ul>          <li class="views-row-odd views-row-first">  
+  <div class="box">        <span><a href=/content/2019/100043879.html><div class="article-title">Linux_GUI加速(3)——加速模块设计</div> </a></span>  </div></li>
+          <li class="views-row-even">  
+  <div class="box">        <span><a href=/content/2019/100042849.html><div class="article-title">MYD-C7Z020 开发板</div> </a></span>  </div></li>
+          <li class="views-row-odd">  
+  <div class="box">        <span><a href=/content/2018/100016455.html><div class="article-title">PYNQ上手笔记（6）——HDL设计IP核</div> </a></span>  </div></li>
+          <li class="views-row-even">  
+  <div class="box">        <span><a href=/content/2019/100043426.html><div class="article-title">ZYNQ开发（四）DMA配置</div> </a></span>  </div></li>
+          <li class="views-row-odd">  
+  <div class="box">        <span><a href=/content/2019/100044622.html><div class="article-title">基于ZYNQ的OV5640图像采集+LCD显示测试</div> </a></span>  </div></li>
+          <li class="views-row-even views-row-last">  
+  <div class="box">        <span><a href=/content/2019/100045938.html><div class="article-title">【驱动初发】一个简单到不能再简单的块设备驱动</div> </a></span>  </div></li>
+      </ul></div>    </div>
+  
+  
+  
+  
+  
+  
+</div>
+</section>
+
+  </div>
+    </section>
+
+          <aside class="col-sm-3" role="complementary">
+          <div class="region region-sidebar-second">
+    <div class="visible-lg">
+<section id="block-user-login" class="block block-user clearfix">
+
+      
+  <form action="http://xilinx.eetrend.com/content/2019/100018437.html?destination=node/100018437" method="post" id="user-login-form" accept-charset="UTF-8"><div><div id="user-login-block-container">
+  <div id="user-login-block-form-fields" class="daniel">
+    <div class="form-item form-item-name form-type-textfield form-group"> <label class="control-label" for="edit-name">邮箱或用户名 <span class="form-required" title="此字段为必选项。">*</span></label>
+<input class="form-control form-text required" type="text" id="edit-name" name="name" value="" size="15" maxlength="60" /></div>    <div class="form-item form-item-pass form-type-password form-group"> <label class="control-label" for="edit-pass">密码 <span class="form-required" title="此字段为必选项。">*</span></label>
+<input class="form-control form-text required" type="password" id="edit-pass" name="pass" size="15" maxlength="128" /></div>    <button type="submit" id="edit-submit--2" name="op" value="登录" class="btn btn-primary form-submit">登录</button>
+    <a href="/user/register" title="创建新用户帐号。"><button type="button" class="btn btn-secondary">注册</button></a>
+    <a href="/user/password" title="通过电子邮件找回登录密码。"><button type="button" class="btn btn-secondary">忘记密码</button></a>
+        <input type="hidden" name="form_build_id" value="form-ToFtUfpGt1EH9521q11EuvgBvn5fpFhFF1Y5bgZ5zZ0" />
+<input type="hidden" name="form_id" value="user_login_block" />
+<div class="form-actions form-wrapper form-group" id="edit-actions--2"></div> 
+  </div>
+  <!--
+  <div class="links">
+    <a href="/user/register">Create an Account</a> | <a href="/user/password">Forgot Password</a>
+  </div>
+    -->
+</div></div></form>
+</section>
+</div><div class="visible-lg">
+<section id="block-block-59" class="block block-block clearfix">
+
+        <h2 class="block-title">午后加油站</h2>
+    
+  <!--<li><a href="https://forums.xilinx.com/t5/Xcell-Daily-Blog/bg-p/Xcell"><img src="http://xilinx.eetrend.com/files-eetrend-xilinx/news/201804/12762-41210-6577-11095-350banner.jpg" /></a></li>--><li><a href="http://xilinx.eetrend.com/d6-xilinx/forum/2015-06/8762.html">Xilinx午后加油站所有文章列表</a><a href="http://xilinx.eetrend.com/forum/8762"><img src="/files-eetrend/news/201001/100023707-10626-new-1.gif" alt="" /></a></li>
+<li>  <a href="http://xilinx.eetrend.com/content/2019/100017444.html">借助Zynq UltraScale+ RFSoCs缩短设计周期同时最小化风险</a></li>
+<li>  <a href="http://xilinx.eetrend.com/content/2019/100017378.html">设计采用目标器件的切换</a></li>
+<li><a href="http://xilinx.eetrend.com/d6-xilinx/news/2018-03/12640.html">这个工业级摄像头拍照竟然可以到每秒3500帧！</a></li>
+<li><a href="http://xilinx.eetrend.com/d6-xilinx/news/2018-02/12536.html">自动驾驶系统：基于Zynq的实时物体检测</a></li>
+
+</section>
+</div><div class="visible-lg">
+<section id="block-views-banner-admin-block" class="block block-views clearfix">
+
+        <h2 class="block-title">热门推荐</h2>
+    
+  <div class="view view-banner-admin view-id-banner_admin view-display-id-block view-dom-id-f72375063ce8af1aa4b7fd26863a0151">
+        
+  
+  
+      <div class="view-content">
+        <div class="banner-list">
+      
+          <ul><li><a href="https://china.xilinx.com/community/contest2020.html?utm_source=EEtrend&amp;utm_medium=social&amp;utm_campaign=adaptive-computing-contest&amp;utm_content=contest2020"><img src="/files/2020-07/Banner/100016651-101873-300cheng_169.jpg"  title="2020Xilinx自适应计算竞赛"></a></li>
+<li><a href="https://china.xilinx.com/products/design-tools/vitis.html"><img src="/files/2019-10/Banner/100016651-82034-300x169.jpg"  title="Vitis 统一软件平台"></a></li>
+<li><a href="https://china.xilinx.com/products/silicon-devices/acap/versal/videos.html"><img src="/files/2019-06/Banner/100016651-72747-320.jpg"  title="Versal ACAP"></a></li>
+<li><a href="http://www.eetrend.com/topics/2018-03/100077696.html"><img src="/files/2018-12/Banner/100016651-55883-100065169-84442-xilinxsae300.jpg"  title="跟Xilinx SAE 学HLS"></a></li>
+<li><a href=""><img src="/files/2018-12/Banner/100016651-55886-12259-33803-weixin.jpg"  title="微信"></a></li>
+<li><a href=""><img src="/files/2018-12/Banner/100016651-55887-7708-14142-fpgajiaoliuqun.jpg"  title="QQ群"></a></li>
+</ul>    </div>
+    </div>
+  
+  
+  
+  
+  
+  
+</div>
+</section>
+</div><div class="visible-lg">
+<section id="block-views-block-links-block" class="block block-views clearfix">
+
+        <h2 class="block-title">每日头条</h2>
+    
+  <div class="view view-block-links view-id-block_links view-display-id-block view-dom-id-1df002756ecaaa08191a46ed6c38a0ae">
+        
+  
+  
+      <div class="view-content">
+        <div class="views-row views-row-1 views-row-odd views-row-first">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100059003.html">开发者分享 | 在 Zynq UltraScale 器件上通过 Vitis 创建 Linux 用户应用</a></span>  </div>  </div>
+  <div class="views-row views-row-2 views-row-even">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058885.html">解决数据孤岛的联邦学习了解一下？</a></span>  </div>  </div>
+  <div class="views-row views-row-3 views-row-odd">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058878.html">Xilinx、Spline.AI、AWS 推出 X 射线分型深度学习模型和参考设计</a></span>  </div>  </div>
+  <div class="views-row views-row-4 views-row-even">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058831.html">何为FPGA？</a></span>  </div>  </div>
+  <div class="views-row views-row-5 views-row-odd">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058732.html">RoE (Radio Over Ethernet) 赋能5G无线应用</a></span>  </div>  </div>
+  <div class="views-row views-row-6 views-row-even">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058624.html">Xilinx 携手三星推出业界首款灵活应变的计算存储驱动器</a></span>  </div>  </div>
+  <div class="views-row views-row-7 views-row-odd">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058379.html">创建 Vitis 加速平台第4部分：在 Vitis 中测试定制加速平台</a></span>  </div>  </div>
+  <div class="views-row views-row-8 views-row-even">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100058361.html">赛灵思在最新 MLPerf 推断基准测试中实现图像分类最高峰值性能效率</a></span>  </div>  </div>
+  <div class="views-row views-row-9 views-row-odd">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100056638.html">赛灵思里程碑式新品发布！集成硬IP的Zynq RFSoC DFE满足5G多样性需求！</a></span>  </div>  </div>
+  <div class="views-row views-row-10 views-row-even views-row-last">
+      
+  <div class="views-field views-field-title">        <span class="field-content"><a href="/content/2020/100056804.html">加速 AI 推断的三个关键因素</a></span>  </div>  </div>
+    </div>
+  
+  
+  
+  
+  
+  
+</div>
+</section>
+</div><div class="visible-lg">
+<section id="block-comment-recent" class="block block-comment clearfix">
+
+        <h2 class="block-title">最新评论</h2>
+    
+  <ul><li><a href="/comment/586#comment-586">您好我的Lwip使用生成的Demo会卡死在xemac</a>&nbsp;<span>1个月 1 周 之前</span></li>
+<li><a href="/comment/585#comment-585">注册就可以免费下载了</a>&nbsp;<span>1个月 3 周 之前</span></li>
+<li><a href="/comment/584#comment-584">看一看呀</a>&nbsp;<span>1个月 3 周 之前</span></li>
+<li><a href="/comment/583#comment-583">看一看</a>&nbsp;<span>1个月 3 周 之前</span></li>
+<li><a href="/comment/581#comment-581">JESD204</a>&nbsp;<span>2 个月 3 周 之前</span></li>
+<li><a href="/comment/580#comment-580">JESD204</a>&nbsp;<span>2 个月 3 周 之前</span></li>
+<li><a href="/comment/579#comment-579">JESD204</a>&nbsp;<span>2 个月 3 周 之前</span></li>
+<li><a href="/comment/578#comment-578">JESD204</a>&nbsp;<span>2 个月 3 周 之前</span></li>
+<li><a href="/comment/576#comment-576">hjdjdj</a>&nbsp;<span>3 个月 2 周 之前</span></li>
+<li><a href="/comment/574#comment-574">haimeikan</a>&nbsp;<span>5 个月 1 天 之前</span></li>
+</ul>
+</section>
+</div><div class="visible-lg">
+<section id="block-block-56" class="block block-block clearfix">
+
+        <h2 class="block-title">微博</h2>
+    
+  <iframe width="100%" height="550" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=50&skin=5&isTitle=1&noborder=1&isWeibo=1&isFans=1&uid=2150910802&verifier=cd63d472&dpc=1"></iframe>
+</section>
+</div>  </div>
+      </aside>  <!-- /#sidebar-second -->
+    
+  </div>
+</div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="region region-footer">
+    <section id="block-block-58" class="block block-block clearfix">
+
+      
+  <div> --## 本站发布信息所有图片均来自自有图库、公关公司或者半导体原厂，如有侵权请联系删除，赔偿事宜请直接联系相关公关公司或者原厂  ##-- </div>
+<p></p>
+<div>--<a href="http://www.eetrend.com">电子创新网合作网站</a>--</div>
+<div id="copyright"><a href="http://adi.eetrend.com">ADI电机控制中文社区</a> | <a href="http://imgtec.eetrend.com">Imagination Technologies 中文技术社区</a> | <a href="http://murata.eetrend.com">村田中文技术社区</a> | <a href="http://mouser.eetrend.com">贸泽工程师社区</a> | <a href="http://xilinx.eetrend.com">电子创新网赛灵思中文社区</a> | <a href="http://mcu.eetrend.com">MCU加油站</a></div>
+<div>本网站转载的所有的文章、图片、音频视频文件等资料的版权归版权所有人所有，本站采用的非本站原创文章及图片等内容无法一一联系确认版权者。如果本网所选内容的文章作者及编辑认为其作品不宜公开自由传播，或不应无偿使用，请及时通过电子邮件或电话通知我们，以迅速采取适当措施，避免给双方造成不必要的经济损失。</div>
+<div><a href="http://www.miibeian.gov.cn">粤ICP备12070055号</a></div>
+
+</section>
+
+  </div>
+    </div>
+  </footer>
+  <script src="http://xilinx.eetrend.com/modules/statistics/statistics.js?qiqk5n"></script>
+<script src="http://xilinx.eetrend.com/sites/all/themes/bootstrap/js/bootstrap.js?qiqk5n"></script>
+<div style="display:none">
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Febf3f0d33b30b519723f3a8fc76c9d94' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</div>
+</body>
+</html>
