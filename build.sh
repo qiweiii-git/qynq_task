@@ -11,11 +11,12 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq01_uboot'
-buildUboot='1'
+projectName='qynq02_axigpio'
+buildUboot='0'
 buildKernel='1'
 buildFw='0'
-buildBootBin='1'
+buildBootBin='0'
+buildSw='1'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -122,8 +123,19 @@ BuildKernel() {
 
    # Build dtb
    cd .depend/linux-Digilent-Dev/arch/arm/boot/dts
-   dtc -I dts -O dtb -o devicetree.dtb zynq-zed.dts
+   cp $workDir/code/dts/qynq.dts ./
+   dtc -I dts -O dtb -o devicetree.dtb qynq.dts
    cp devicetree.dtb $workDir/project/$projectName/bin
+   cd $workDir
+}
+
+#*****************************************************************************
+# Build softwares
+#*****************************************************************************
+BuildSw() {
+   cd .build/code/software/drivers/led
+   arm-xilinx-linux-gnueabi-gcc -o LedGpioTest LedGpioTest.c
+   cp LedGpioTest $workDir/project/$projectName/bin
    cd $workDir
 }
 
@@ -135,6 +147,13 @@ BuildRootfs() {
    cp -ra .depend/qynq_base .build/.depend/
 
    cd .build/.depend/qynq_base/rootfs
+   gunzip arm_ramdisk.image.gz
+   chmod u+rwx arm_ramdisk.image
+   mkdir tmp_mnt
+   sudo mount -o loop arm_ramdisk.image tmp_mnt/
+   sudo cp $workDir/project/$projectName/bin/LedGpioTest tmp_mnt/usr/sbin/
+   sudo umount tmp_mnt/
+   gzip arm_ramdisk.image
 
    mkimage -A arm -T ramdisk -C gzip -d arm_ramdisk.image.gz uramdisk.image.gz
 
@@ -201,6 +220,7 @@ fi
 
 if [[ $buildKernel -eq 1 ]]; then
    BuildKernel
+   BuildSw
    BuildRootfs
 fi
 

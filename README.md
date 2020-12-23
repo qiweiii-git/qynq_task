@@ -6,3 +6,6 @@
 
 ## qynq01_uboot
  修改Xilinx官方u-boot及添加设备树，使适配AX7020开发板。
+ 
+## qynq02_axigpio
+ 添加AXI GPIO控制LED功能。

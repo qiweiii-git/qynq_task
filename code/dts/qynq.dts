@@ -1,0 +1,109 @@
+
+/dts-v1/;
+/include/ "zynq-7000.dtsi"
+
+/ {
+   model = "Qynq Development Board";
+   compatible = "xlnx,zynq-7000";
+
+   aliases {
+      ethernet0 = &gem0;
+      serial0 = &uart1;
+      spi0 = &qspi;
+   };
+
+   memory {
+      device_type = "memory";
+      reg = <0x0 0x20000000>;
+   };
+
+   chosen {
+      bootargs = "console=ttyPS0,115200 root=/dev/ram rw earlyprintk";
+      linux,stdout-path = "/amba/serial@e0001000";
+   };
+
+   amba_pl {
+      #address-cells = <0x1>;
+      #size-cells = <0x1>;
+      compatible = "simple-bus";
+      ranges;
+
+      axigpio0@41100000 {
+            #gpio-cells = <2>;
+            compatible = "xlnx,xps-gpio-1.00.a";
+            gpio-controller ;
+            reg = < 0x41100000 0x10000 >;
+            xlnx,all-inputs = <0x0>;
+            xlnx,all-inputs-2 = <0x0>;
+            xlnx,all-outputs = <0x1>;
+            xlnx,all-outputs-2 = <0x0>;
+            xlnx,dout-default = <0x0>;
+            xlnx,dout-default-2 = <0x0>;
+            xlnx,gpio-width = <0x1>;
+            xlnx,gpio2-width = <0x1>;
+            xlnx,interrupt-present = <0x0>;
+            xlnx,is-dual = <0x0>;
+            xlnx,tri-default = <0xffffffff>;
+            xlnx,tri-default-2 = <0xffffffff>;
+      };
+   };
+};
+
+&qspi {
+   status = "okay";
+   is-dual = <0>;
+   num-cs = <1>;
+   flash@0 {
+      compatible = "n25q128a11";
+      reg = <0x0>;
+      spi-tx-bus-width = <1>;
+      spi-rx-bus-width = <4>;
+      spi-max-frequency = <50000000>;
+      #address-cells = <1>;
+      #size-cells = <1>;
+      partition@qspi-fsbl-uboot {
+         label = "qspi-fsbl-uboot";
+         reg = <0x0 0x100000>;
+      };
+      partition@qspi-linux {
+         label = "qspi-linux";
+         reg = <0x100000 0x500000>;
+      };
+      partition@qspi-device-tree {
+         label = "qspi-device-tree";
+         reg = <0x600000 0x20000>;
+      };
+      partition@qspi-rootfs {
+         label = "qspi-rootfs";
+         reg = <0x620000 0x5E0000>;
+      };
+      partition@qspi-bitstream {
+         label = "qspi-bitstream";
+         reg = <0xC00000 0x400000>;
+      };
+   };
+};
+
+&usb0 {
+   status = "okay";
+   dr_mode = "host";
+   phy_type = "ulpi";
+};
+
+&gem0 {
+   status = "okay";
+   phy-mode = "rgmii-id";
+   phy-handle = <&ethernet_phy>;
+
+   ethernet_phy: ethernet-phy@0 {
+      reg = <0>;
+   };
+};
+
+&sdhci0 {
+   status = "okay";
+};
+
+&uart1 {
+   status = "okay";
+};

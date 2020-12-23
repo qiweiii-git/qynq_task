@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="canonical" href="https://blog.51cto.com/11674570/2083532">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="applicable-device" content="pc">
+    <link type="favicon" rel="shortcut icon" href="/favicon.ico" />
+        <title>根文件系统添加用户登入功能-11664570-51CTO博客</title>
+    <meta name="keywords" content="busybox,设置用户">
+<meta name="description" content="1：再启动文件系统的时候为什么没有出现用户登入界面在文件inittab中，::respawn:-/bin/sh被执行时，直接进入了命令行，因此不会显示用户登入界面，因此添加用户登入界面需要在这里做文章。2：busybox如何实现用户登入我们知道busybox是很多可执行程序的集合，busybox中也集成了用户登入的命令，分别是/bin/login和/sbin/gettty3：添加用户登入界面结合前">    <link href="https://static1.51cto.com/edu/blog/css/header.css" rel="stylesheet"><link href="https://static1.51cto.com/edu/blog/css/other.css" rel="stylesheet"><link href="https://static1.51cto.com/edu/blog/css/right.css?v=3.1.7" rel="stylesheet"><link href="https://static1.51cto.com/edu/blog/css/blog_details.css" rel="stylesheet"><link href="https://static1.51cto.com/edu/blog/css/highlight.css" rel="stylesheet">
+    <script>
+        var HOME_URL = 'https://home.51cto.com/';
+    </script>
+    <script src="https://static1.51cto.com/edu/center/js/jquery.min.js"></script><script src="https://static1.51cto.com/edu/blog/js/cookie.js"></script><script src="https://static4.51cto.com/home/web/js/new_login/iframe.js?v=1.0.5"></script><script src="https://static1.51cto.com/edu/blog/js/login.js?v=1.0.0"></script><script src="https://static1.51cto.com/edu/blog/js/common.js"></script><script src="https://static1.51cto.com/edu/blog/js/mbox.js"></script><script src="https://static1.51cto.com/edu/blog/js/follow.js"></script><script src="https://static1.51cto.com/edu/blog/js/vip.js"></script><script src="https://static1.51cto.com/edu/blog/js/window.js"></script></head>
+<body>
+<img src="https://static1.51cto.com/edu/blog/mobile/images/share_default.jpg" border="0" style="width:0; height:0; position:absolute;">
+<style type="text/css">
+	.service-btn{
+		width: 53px;
+height: 36px;
+color: #1ac6fe;
+line-height: 16px;
+padding-top: 50px;
+		display: inline-block;
+		background: url(https://s4.51cto.com/images/blog/201811/02/463350acf4c693cfb3dc248bc8a2a0eb.png) no-repeat center;
+	}
+	.service-btn:hover{
+		background: url(https://s4.51cto.com/images/blog/201811/02/2d5fa2ff4eb9ef66847aff20ba4c8bae.png) no-repeat center;
+height: 36px;
+color: #fff;
+line-height: 16px;
+padding-top: 50px;
+	}
+    .special-column .column-1 .column-box .center a.h2{font-size:18px;}
+    .special-column .column-1 .column-box .center h5 span{font-size:14px;}
+</style>
+<!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+<div class="Header">
+  <div class="Page ">
+    <h1 class="Logo"><a href="https://blog.51cto.com/">Logo</a></h1>
+    <ul class="Navigates fl">
+      <li ><a href="https://blog.51cto.com/">首页</a></li>
+      <li ><a href="https://blog.51cto.com/original">文章</a></li>
+      <li ><a href="https://blog.51cto.com/blog/follow">关注</a></li>
+      <li class="">
+        <a class="column-stress" href="https://blog.51cto.com/cloumn/index" target="_blank">订阅专栏</a>
+      </li>
+        <li>
+            <a href="http://aix.51cto.com/activity/index.html?blog" target="_blank">大咖来了</a>
+        </li>
+                    
+                  </ul>
+    <ul class="Navigates Navigates-right fr">
+      <li class="more maps">
+        <a href="javascript:void(0);">网站导航</a>
+        <div>
+            <a href="https://edu.51cto.com/" target="_blank">学院</a>
+            <a href="https://e.51cto.com/" target="_blank">微职位</a>
+            <a href="http://aix.51cto.com/activity/index.html" target="_blank" class="nav_dk">大咖来了</a>
+            <a href="https://blog.51cto.com/" target="_blank">博客</a>
+            
+            <a href="https://home.51cto.com/" target="_blank">家园</a>
+            <a href="http://bbs.51cto.com/" target="_blank">论坛</a>
+            <a href="https://harmonyos.51cto.com?blogdaohang" target="_blank">鸿蒙社区</a>
+            <a href="http://x.51cto.com" target="_blank">CTO训练营</a>
+            <!--a href=" http://club.51cto.com?blog" target="_blank">CTO俱乐部</a-->
+            <a href="http://wot.51cto.com" target="_blank">WOT</a>
+            <a href="http://www.51cto.com" target="_blank">51CTO</a>
+            <i class="arrow"></i>
+        </div>
+      </li>
+                <li>
+			<a href="/site/login?reback=https%3A%2F%2Fblog.51cto.com%2F11674570%2F2083532&logintype=reg" target="_self">注册</a>
+			<!--领VIP图标-->
+			<span style="position: absolute;top:0px;">
+				<a href="https://edu.51cto.com/center/activity/member-activity" target="_blank">
+					<img src="https://s4.51cto.com/oss/202002/09/50768f7d453813db433782e76c9f1d44.png">
+				</a>
+			</span>
+		  </li>
+          <li class="login"><a href="/site/login?reback=https%3A%2F%2Fblog.51cto.com%2F11674570%2F2083532" target="_self">登录</a></li>
+                
+        <li class="mRead">
+            <a href="javascript:;">手机阅读</a>
+            <div style="left:-68%" class="clearfix">
+                <i class="arrow"></i>
+                <div class="towD-box fl">
+                    <img src="https://static1.51cto.com/edu/blog/images/blog_qr.png">
+                    <p>手机随时阅读</p>
+                </div>
+                <div class="towD-box fr">
+                    <img src="https://s5.51cto.com/oss/202007/05/5a45016915218bb53e32af17b14a8822.jpg">
+                    <p class="twoD-red">新人专享大礼包￥24</p>
+                </div>
+            </div>
+        </li>
+
+            <li class="search"><a href="https://blog.51cto.com/search/index"  target="_self">搜索</a></li>
+                  <li class="write"><a href="javascript:;" onClick="Login()">写文章</a></li>
+                  </ul>
+
+          <div class="clear"></div>
+  </div>
+</div>
+<script src="https://static1.51cto.com/edu/blog/mobile/js/lib/box.js"></script> 
+<script>
+    var isLogin = '0';
+    var userId = '';
+    var imgpath = 'https://s4.51cto.com/';
+    var BLOG_URL = 'https://blog.51cto.com/';
+    var msg_num_url = '/index/ajax-msg-num';
+    $('.msg-follow, .msg-follow-max').eq(1).css({top: '91px'});
+    $('.msg-follow, .msg-follow-max').eq(2).css({top: '121px'});
+    setTimeout(function(){
+            $.ajax({
+                url:msg_num_url,
+                type:"get",
+                dataType:'json',
+                success:function(res){
+                    if(res.status == '0'){
+                       //
+                       var hasNewMsg = false;
+                       if(res.data.msgNum > 0 && !$('#myMsg i').hasClass('dot')){
+                            $('#myMsg i').addClass('dot');
+                            hasNewMsg = true;
+                       }
+                       if(res.data.notifyNum > 0 && !$('#myNotify i').hasClass('dot')){
+                           $('#myNotify i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(res.data.recommend_new > 0 && !$('#myRecommend i').hasClass('dot')){
+                           $('#myRecommend i').addClass('dot');
+                           hasNewMsg = true;
+                       }
+                       if(hasNewMsg && !$('#myAllMsg i').hasClass('dot')){
+                           $('#myAllMsg i').addClass('dot');
+                       }
+                    }
+
+                }
+            });
+    },70);
+    //广告图
+</script>
+ <script src="//www.sobot.com/chat/frame/js/entrance.js?sysNum=a8d9379eaf884b4f81a48348979e3b1a" id="zhichiScript" class="zhiCustomBtn" data-args="manual=true"></script>
+<a href="javascript:;" class="zhiCustomBtn" style="position: fixed;z-index: 2147483583;width: 60px;height: 6px;text-align: center;bottom:275px;right:0px;">
+<span class="service-btn">在线<br/>客服</span>
+</a>
+
+<script type="text/javascript">
+var zhiManager = (getzhiSDKInstance());
+zhiManager.on("load", function() {
+    zhiManager.initBtnDOM();
+});
+//zhiManager.set('title','垃圾/广告信息举报');
+zhiManager.set('powered',false);
+zhiManager.set('color', '4285f4');
+zhiManager.set('customBtn', 'true');
+zhiManager.set('moduleType',2);
+zhiManager.set('size',{'width':360,'height':500});
+
+zhiManager.set('userinfo', {partnerId:'',uname:'',params:'{"用户名":""}'});
+zhiManager.set('customMargin', 20);
+zhiManager.set('horizontal', 20);
+zhiManager.set('vertical', 90);
+zhiManager.set('preVisitArgs',{'preVisitUrl': document.referrer?document.referrer:''});
+zhiManager.set('curVisitArgs',{'curVisitUrl': location.href,curVisitTitle:document.title,});
+</script>
+<div class="Content-box">
+    	<link rel="stylesheet" href="https://static1.51cto.com/edu/blog/css/mdeShow.css">
+<link rel="stylesheet" href="https://static1.51cto.com/edu/blog/css/tinyscrollbar.css"/>
+<script type="text/javascript" src="https://static1.51cto.com/edu/blog/js/jquery.tinyscrollbar.js"></script>
+<div class="Content Index" style="padding-bottom: 50px;">
+	<div class="Page M764">
+		<!-- left start -->
+		<div class="artical-Left-blog">
+			<div class="status">
+	        					<a class="tab_name original">原创</a>
+							</div>
+			<h1 class="artical-title">根文件系统添加用户登入功能</h1>
+			<div class="artical-title-list">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/11674570" class="a-img" target="_blank"><img class="is-vip-img is-vip-img-4" data-uid="11664570" src="https://ucenter.51cto.com/images/noavatar_middle.gif"></a>
+				</div>
+				<a href="https://blog.51cto.com/11674570" class="name fl" target="_blank" style="margin-right:0;">菜鸟养成记</a>
+												<a class="comment comment-num fr"><font class="comment_number">0</font>人评论</a>
+				<span class="fr"></span>
+				<a href="javascript:;" class="read fr">4685人阅读</a>
+				<a href="javascript:;" class="time fr">2018-03-06 17:33:11</a>
+				<div class="clear"></div>
+			</div>
+							
+				<div class="artical-content-bak main-content">
+										<div class="con artical-content editor-preview-side"><pre><code>    1：再启动文件系统的时候为什么没有出现用户登入界面</code></pre>
+<p>在文件inittab中，::respawn:-/bin/sh被执行时，直接进入了命令行，因此不会显示用户登入界面，因此添加用户登入界面需要在这里做文章。<br/>2：busybox如何实现用户登入<br/>我们知道busybox是很多可执行程序的集合，busybox中也集成了用户登入的命令，分别是/bin/login和/sbin/gettty<br/>3：添加用户登入界面<br/>结合前面所述只需要将::respawn:-/bin/sh改为::respawn:-/bin/login或者::respawn:-/sbin/getty即可。<br/>4：进一步完善<br/>重新加载文件系统可以发现，系统出现了用户登入的界面，但是无法登入，原因是，我们通过修改inittab文件，在系统启动时调用了用户登入程序，但是我们并没有设置用户名和用户密码。<br/>在linux中，用户名由/etc/passwd文件进行管理，用户密码由etc/shadow进行管理，这两个文件的格式可自行百度，这里不再进行叙述。所以我们只需要将ubuntu中/etc/passwd和/etc/shadow两个文件拷贝到根文件系统中的/etc目录下即可，当然需要对着相应的格式进行修改。<br/><strong><em>在busybox只有root用户，所以可以删除passwd中的普通用户信息，同时还得修改root用户登入时进入的目录，同时删除shadow中对应root用户的登入密码，root用户的密码可以在登入后使用passwd root进行修改。</em></strong></p></div>
+				</div>
+													<div class="artical-copyright mt26">©著作权归作者所有：来自51CTO博客作者菜鸟养成记的原创作品，如需转载，请注明出处，否则将追究法律责任</div>
+									<div class="for-tag mt26">
+																						<a href="https://blog.51cto.com/search/result?q=busybox" target="_blank">busybox</a>
+																								<a href="https://blog.51cto.com/search/result?q=%E8%AE%BE%E7%BD%AE%E7%94%A8%E6%88%B7" target="_blank">设置用户</a>
+															                				<a class="last" href="https://blog.51cto.com/11674570/category5.html" target="_blank"><i></i>linux 内核移植</a>
+                				<div class="clear"></div>
+			</div>
+			<div class="more-list">
+				<p class="is-praise fl "><span type="1" blog_id="2083532" userid='11664570'>1</span></p>
+				<div class="share-box fr">
+					<p class="share"><i></i>分享</p>
+					<div class="bdsharebuttonbox">
+					  <span></span>
+					  <a class="bds_tsina" data-cmd="tsina" >微博</a>
+					  <a class="bds_sqq" data-cmd="sqq" >QQ</a>
+					  <a class="bds_weixin" data-cmd="weixin" >微信</a>
+					  <img src="/qr/qr-url?url=https%3A%2F%2Fblog.51cto.com%2F11674570%2F2083532">
+					</div>
+				</div>
+				<p class="favorites favorites-opt fr"><i></i>收藏</p>
+								<div class="clear"></div>
+			</div>
+							<div class="artical-list">
+	            					<a class="fl" href="https://blog.51cto.com/11674570/2042697" title="我的友情链接">
+						上一篇：我的友情链接</a>
+	            	            					<div class="clear"></div>
+				</div>
+						<div class="author-module">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/11674570" class="a-img" target="_blank">
+						<img class="is-vip-img is-vip-img-4" data-uid="11664570" src="https://ucenter.51cto.com/images/noavatar_middle.gif">
+					</a>
+				</div>
+				<div class="author-module-center fl">
+					<a class="h2" href="https://blog.51cto.com/11674570" target="_blank" style="display:inline-block;">菜鸟养成记</a>
+										<h3>70篇文章，19W+人气，0粉丝</h3>
+									</div>
+								<div class="clear"></div>
+			</div>
+		</div>
+		<div class="artical-Left" id="comment">
+			<!-- 发布评论 -->
+			<div class="comment-creat">
+				<div class="is-vip-bg-6 fl">
+					<a href="https://blog.51cto.com/11674570" class="header-img" target="_blank">
+						<img  src="https://ucenter.51cto.com/images/noavatar_middle.gif"/>
+					</a>
+				</div>
+				<div class="first-publish fr publish_user_id">
+					<textarea class="textareadiv textareadiv-publish" name="" id="" placeholder="提问和评论都可以，用心的回复会被更多人看到和认可"  maxlength="500"></textarea>
+					<div class="comment-push">
+						<p class="msg fl">Ctrl+Enter&nbsp;发布</p>
+													<p class="publish-btn blue-btn fr" flag="1">发布</p>
+												<p class="cancel-btn cancel-btn-1 fr">取消</p>
+						<div class="clear"></div>
+					</div>
+					<input type="hidden" class="user_id" value="11664570">
+					<input type="hidden" class="reply_id" value="2083532">
+					<input type="hidden" class="first_pid" value="">
+				</div>
+				<div class="clear"></div>
+			</div>
+						<div class="commentList">
+			</div>
+			<!-- page -->
+			<div class="act_pageList_box"></div>
+		</div>
+		<!-- end left -->
+		<!-- right start -->
+		<div class="Blog-Right artical-Right">
+			<a class="catalog"></a>
+			<a class="scrollTop" href="javascript:void(0);" onclick="$(window).scrollTop(0);"></a>
+		</div>
+		<!-- end right  -->
+	</div>
+			<div class="special-column">
+			<div class="Page M764">
+													<div class="column-2" >
+						<h2 class="column-tit">猜你喜欢</h2>
+						<div class="column-box">
+															<a class="white-space" href="https://blog.51cto.com/11674570/2042697?source=dra" target="_blank">我的友情链接</a>
+															<a class="white-space" href="https://blog.51cto.com/11674570/1956201?source=dra" target="_blank">C语言之有符号数和无符号数</a>
+															<a class="white-space" href="https://blog.51cto.com/2960629/742499?source=drt" target="_blank">Android设置透明、半透明等效果</a>
+															<a class="white-space" href="https://blog.51cto.com/2960629/701227?source=drt" target="_blank">Android强制设置横屏或竖屏</a>
+															<a class="white-space" href="https://blog.51cto.com/waringid/955939?source=drt" target="_blank">zabbix中文配置指南</a>
+															<a class="white-space" href="https://blog.51cto.com/ycrsjxy/1047742?source=drt" target="_blank">Windows Server 2012图形用户界面（GUI）和服务器核心(Server Core)之间的切换</a>
+															<a class="white-space" href="https://blog.51cto.com/leejia/2048270?source=drt" target="_blank">linux设置http/https proxy及忽略proxy的方法</a>
+															<a class="white-space" href="https://blog.51cto.com/51ctohome/737428?source=drt" target="_blank">邮件白名单设置方法【51CTO帮助】</a>
+															<a class="white-space" href="https://blog.51cto.com/wyait/2107423?source=drt" target="_blank">springboot + shiro之登录人数限制、登录判断重定向、session时间设置</a>
+															<a class="white-space" href="https://blog.51cto.com/johnsz/715922?source=drt" target="_blank">Haproxy安装及配置</a>
+															<a class="white-space" href="https://blog.51cto.com/feihan21/1174650?source=drt" target="_blank">linux 的date命令及系统时间设置</a>
+															<a class="white-space" href="https://blog.51cto.com/wanyij/139377?source=drt" target="_blank">双网卡同时上内外网的路由设置</a>
+															<a class="white-space" href="https://blog.51cto.com/13475106/2489241?source=drh" target="_blank">操作系统-保护模式中的特权级下</a>
+															<a class="white-space" href="https://blog.51cto.com/11134889/2317010?source=drh" target="_blank">蓝牙跳频算法分析</a>
+															<a class="white-space" href="https://blog.51cto.com/astonzhu/2135684?source=drh" target="_blank">站在2018看单片机和嵌入式芯片方案选型和发展趋势</a>
+															<a class="white-space" href="https://blog.51cto.com/verdureorange/2129471?source=drh" target="_blank">与树莓派共享目录 —— Windows自带NFS客户端？</a>
+															<a class="white-space" href="https://blog.51cto.com/13479737/2097564?source=drh" target="_blank">基于树莓派（Raspberry Pi3）平台通过微信（WeChat模块）进行交互的智能家居实现（一）</a>
+															<a class="white-space" href="https://blog.51cto.com/11134889/2092882?source=drh" target="_blank">深入理解程序的结构</a>
+															<a class="white-space" href="https://blog.51cto.com/13479737/2087546?source=drh" target="_blank">基于树莓派（Raspberry Pi）平台的MQ-2烟雾报警系统实现（一）</a>
+															<a class="white-space" href="https://blog.51cto.com/11134889/2070658?source=drh" target="_blank">深入浅出处理器（下）_内存管理（映射）</a>
+														<div class="clear"></div>
+						</div>
+					</div>
+				
+                <!-- 0630 好课推荐 -->
+                                    <style>
+                        /* hktj */
+                        .hktj .clearfix{*zoom:1;}
+                        .hktj .clearfix:after{content:'\0020';display:block;height:0;font-size:0;line-height:0;clear:both;overflow:hidden}
+                        .hktj{margin-top: 44px;}
+                        .hktjlist{margin-top:5px;}
+                        .hktjlist li{position:relative;width:355px;min-height: 90px;list-style: none;margin-top:30px;}
+                        .hktjlist .rightContent{position:relative;height: 90px;}
+                        .hktjlist .columnImage{  display: inline-block;position: absolute;width: 150px;height: 90px;}
+                        .hktjlist .columnImage img{width: 100%;height: 90px;}
+                        .hktjlist .rightContent{margin-left: 163px;}
+                        .hktjlist .rightContent a{color:#222;}
+                        .hktjlist .rightContent a:hover{color:#5589ed;}
+                        .hktjlist .cxhk_online_num{font-size:12px;color:#999999;line-height: 1;margin-top:3px;}
+                        .hktjlist .columnTitle {position: relative;line-height: 20px;height:40px;max-height: 40px;overflow: hidden;top: -3px;}
+                        .hktjlist .jion-group-btn{position: absolute;bottom:0;left:0; background:none;color:#222;font-size:14px;line-height:1;text-align:left;width:auto;height: auto;padding:0;font-weight: bold;}
+                        .hk-a-name{margin-right: 7px;}
+                    </style>
+                    <div class="hktj">
+                        <h2 class="column-tit">好课推荐<a href="https://edu.51cto.com/center/course/index/search?q=busybox&qd=bkwz" target="_blank" class="recommend-more-span">更多</a></h2>
+                        <ul class="clearfix hktjlist">
+                                                            
+                                <li class="fl">
+                                    <a class="columnImage cloumn-tab-par" href="http://edu.51cto.com/course/25481.html?qd=bloghktj" target="_blank">
+                                        <img src="https://s1.51ctocdn.cn/images/202010/13/b6ddd476f92652263ac451b49bf1b1e2.jpg" alt="目标检测-YOLO-V4基于PyTorch从零复现（与行人车辆检测实战）">
+                                    </a>
+                                    <div class="rightContent">
+                                        <a href="http://edu.51cto.com/course/25481.html?qd=bloghktj" target="_blank">
+                                            <p class="columnTitle">目标检测-YOLO-V4基于PyTorch从零复现（与行人车辆检测实战）</p>
+                                            <div class="cxhk_online_num">4296人学习</div>
+                                            <div class="jion-group-btn">免费试看 </div>
+                                        </a>
+                                    </div>
+                                </li>
+
+                                
+                                <li class="fr">
+                                    <a class="columnImage cloumn-tab-par" href="http://edu.51cto.com/course/20173.html?qd=bloghktj" target="_blank">
+                                        <img src="https://s1.51ctocdn.cn/images/201910/23/59230c8ba310a158d7ce178aa16ce542.png" alt="Python数据分析行业案例课程--推荐系统">
+                                    </a>
+                                    <div class="rightContent">
+                                        <a href="http://edu.51cto.com/course/20173.html?qd=bloghktj" target="_blank">
+                                            <p class="columnTitle">Python数据分析行业案例课程--推荐系统</p>
+                                            <div class="cxhk_online_num">1352人学习</div>
+                                            <div class="jion-group-btn">免费试看 </div>
+                                        </a>
+                                    </div>
+                                </li>
+
+                                
+                                <li class="fl">
+                                    <a class="columnImage cloumn-tab-par" href="http://edu.51cto.com/course/12155.html?qd=bloghktj" target="_blank">
+                                        <img src="https://s1.51ctocdn.cn/images/201712/28/7f86b3cf5e96397cb879b8d4bdc1c0b6.jpg" alt="Cuda编程(并行计算)视频课程">
+                                    </a>
+                                    <div class="rightContent">
+                                        <a href="http://edu.51cto.com/course/12155.html?qd=bloghktj" target="_blank">
+                                            <p class="columnTitle">Cuda编程(并行计算)视频课程</p>
+                                            <div class="cxhk_online_num">39858人学习</div>
+                                            <div class="jion-group-btn">免费试看 </div>
+                                        </a>
+                                    </div>
+                                </li>
+
+                                
+                                <li class="fr">
+                                    <a class="columnImage cloumn-tab-par" href="http://edu.51cto.com/course/11978.html?qd=bloghktj" target="_blank">
+                                        <img src="https://s1.51ctocdn.cn/images/202011/12/aa0b133d6754679dda1cd54178829c4c.png" alt="Python入门与数据科学库">
+                                    </a>
+                                    <div class="rightContent">
+                                        <a href="http://edu.51cto.com/course/11978.html?qd=bloghktj" target="_blank">
+                                            <p class="columnTitle">Python入门与数据科学库</p>
+                                            <div class="cxhk_online_num">222348人学习</div>
+                                            <div class="jion-group-btn">免费试看 </div>
+                                        </a>
+                                    </div>
+                                </li>
+
+                                                                                    </ul>
+                    </div>
+                                <!-- //0630 好课推荐 -->
+            </div>
+		</div>
+		<div class="group_img_box" style="position: fixed;top: 40%;left:49%;">
+		<div class="group_git_box">
+                	 <img src="https://s4.51cto.com/images/blog/202003/17/f84902630cd49eab16f7895cd73e3092.png" style="width:50px;height:50px;"/> 	
+			<!--<img src="https://s4.51cto.com/images/blog/201810/22/078772c84eb23213ea90f577d9316ce4.png"/>-->
+        		</div>
+			<div class="group_code_box">
+			<img src="https://static1.51cto.com/edu/blog/mobile/images/left-qr.jpg" width="130" height="130">
+			<p>扫一扫,领取大礼包</p>
+		</div>
+		
+		<div><!--学院领VIP-->
+            <a href="https://edu.51cto.com/center/activity/member-activity?qd=bokexiaotu" target="_blank">
+                <img src="https://s2.51cto.com/oss/202007/03/f0b9c87765babdf27462fb0b759a2e89.gif" style="width:55px;margin-top: 10px;">
+            </a>
+        </div>
+		
+	</div>
+	<div class="the-lowest-bg">
+		<div class="the-lowest Page M764">
+			<p class="is-praise fl "><span type="1" blog_id="2083532" userid='11664570'>1</span></p>
+			<p class="b-favorites favorites-opt fl"><i></i><b>0</b></p>
+			<a class="b-reply fl"><i></i><font class="comment_number"></font></a>
+			<div class="b-share fl">
+				<i></i>分享
+				<div class="bdsharebuttonbox">
+				  <a class="bds_tsina p2" data-cmd="tsina"></a>
+				  <a class="bds_sqq p3" data-cmd="sqq"></a>
+				  <a class="bds_weixin p1" data-cmd="weixin"><em class="code-icon"></em><img class="code-img" src="/qr/qr-url?url=https%3A%2F%2Fblog.51cto.com%2F11674570%2F2083532"></a>
+				</div>
+			</div>
+      						<a href="https://blog.51cto.com/11674570" class="b-name fr">菜鸟养成记</a>
+			<div class="is-vip-bg-6 fr">
+				<a href="https://blog.51cto.com/11674570" class="b-img"><img class="is-vip-img is-vip-img-4" data-uid="11664570" src="https://ucenter.51cto.com/images/noavatar_middle.gif"></a>
+			</div>
+			<div class="clear"></div>
+
+		</div>
+	</div>
+</div>
+<!-- 老博文美观处理 -->
+<script src="https://static1.51cto.com/edu/blog/js/countDown.js"></script>
+<script>
+	var praise_url = 'https://blog.51cto.com/praise/praise'
+    	addReply_url = 'https://blog.51cto.com/comments/add'
+    	removeUrl = 'https://blog.51cto.com/comments/del'
+    	blog_id = '2083532'
+    	pv_log_info = {
+            'pv_type':'blog',
+            'user_id':'11664570',
+            'blog_id':'2083532'
+        };
+    	rid = '0'
+    	is_comment = '0'
+    	comment_list = '/blog/ajax-comment-list'
+    	comment_sort = "asc"
+    	index_url = 'https://blog.51cto.com/11674570';
+    	uc_url = 'https://ucenter.51cto.com/'
+    	blog_url = 'https://blog.51cto.com/'
+    	img_url = 'https://static1.51cto.com/edu/blog/'
+    	i_user_id = ''
+    	c_user_id ='11664570'
+    	collect_url = 'https://blog.51cto.com/collect/add'
+    	is_old = '0'
+    	nicknameurl = 'https://blog.51cto.com/11674570'
+    	nickname = '菜鸟养成记'
+    	myself = window.location.href;
+	$('.you-like-list li:odd').css({'margin-left': '10%'});
+	$('.column-box a:odd').addClass('left-list')
+	$('.myUrl').text(myself).click(function(){window.open(myself)})
+	setTimeout(function(){$('.Footer').css({'margin-top':'-50px'})},50)
+        	if(is_old==1){
+    // SyntaxHighlighter.all();
+        insertCodeElement("\t\t1\uff1a\u518d\u542f\u52a8\u6587\u4ef6\u7cfb\u7edf\u7684\u65f6\u5019\u4e3a\u4ec0\u4e48\u6ca1\u6709\u51fa\u73b0\u7528\u6237\u767b\u5165\u754c\u9762\n\u5728\u6587\u4ef6inittab\u4e2d\uff0c::respawn:-\/bin\/sh\u88ab\u6267\u884c\u65f6\uff0c\u76f4\u63a5\u8fdb\u5165\u4e86\u547d\u4ee4\u884c\uff0c\u56e0\u6b64\u4e0d\u4f1a\u663e\u793a\u7528\u6237\u767b\u5165\u754c\u9762\uff0c\u56e0\u6b64\u6dfb\u52a0\u7528\u6237\u767b\u5165\u754c\u9762\u9700\u8981\u5728\u8fd9\u91cc\u505a\u6587\u7ae0\u3002\n\t\t2\uff1abusybox\u5982\u4f55\u5b9e\u73b0\u7528\u6237\u767b\u5165\n\u6211\u4eec\u77e5\u9053busybox\u662f\u5f88\u591a\u53ef\u6267\u884c\u7a0b\u5e8f\u7684\u96c6\u5408\uff0cbusybox\u4e2d\u4e5f\u96c6\u6210\u4e86\u7528\u6237\u767b\u5165\u7684\u547d\u4ee4\uff0c\u5206\u522b\u662f\/bin\/login\u548c\/sbin\/gettty\n   3\uff1a\u6dfb\u52a0\u7528\u6237\u767b\u5165\u754c\u9762\n\u7ed3\u5408\u524d\u9762\u6240\u8ff0\u53ea\u9700\u8981\u5c06::respawn:-\/bin\/sh\u6539\u4e3a::respawn:-\/bin\/login\u6216\u8005::respawn:-\/sbin\/getty\u5373\u53ef\u3002\n   4\uff1a\u8fdb\u4e00\u6b65\u5b8c\u5584\n\u91cd\u65b0\u52a0\u8f7d\u6587\u4ef6\u7cfb\u7edf\u53ef\u4ee5\u53d1\u73b0\uff0c\u7cfb\u7edf\u51fa\u73b0\u4e86\u7528\u6237\u767b\u5165\u7684\u754c\u9762\uff0c\u4f46\u662f\u65e0\u6cd5\u767b\u5165\uff0c\u539f\u56e0\u662f\uff0c\u6211\u4eec\u901a\u8fc7\u4fee\u6539inittab\u6587\u4ef6\uff0c\u5728\u7cfb\u7edf\u542f\u52a8\u65f6\u8c03\u7528\u4e86\u7528\u6237\u767b\u5165\u7a0b\u5e8f\uff0c\u4f46\u662f\u6211\u4eec\u5e76\u6ca1\u6709\u8bbe\u7f6e\u7528\u6237\u540d\u548c\u7528\u6237\u5bc6\u7801\u3002\n\u5728linux\u4e2d\uff0c\u7528\u6237\u540d\u7531\/etc\/passwd\u6587\u4ef6\u8fdb\u884c\u7ba1\u7406\uff0c\u7528\u6237\u5bc6\u7801\u7531etc\/shadow\u8fdb\u884c\u7ba1\u7406\uff0c\u8fd9\u4e24\u4e2a\u6587\u4ef6\u7684\u683c\u5f0f\u53ef\u81ea\u884c\u767e\u5ea6\uff0c\u8fd9\u91cc\u4e0d\u518d\u8fdb\u884c\u53d9\u8ff0\u3002\u6240\u4ee5\u6211\u4eec\u53ea\u9700\u8981\u5c06ubuntu\u4e2d\/etc\/passwd\u548c\/etc\/shadow\u4e24\u4e2a\u6587\u4ef6\u62f7\u8d1d\u5230\u6839\u6587\u4ef6\u7cfb\u7edf\u4e2d\u7684\/etc\u76ee\u5f55\u4e0b\u5373\u53ef\uff0c\u5f53\u7136\u9700\u8981\u5bf9\u7740\u76f8\u5e94\u7684\u683c\u5f0f\u8fdb\u884c\u4fee\u6539\u3002\n***\u5728busybox\u53ea\u6709root\u7528\u6237\uff0c\u6240\u4ee5\u53ef\u4ee5\u5220\u9664passwd\u4e2d\u7684\u666e\u901a\u7528\u6237\u4fe1\u606f\uff0c\u540c\u65f6\u8fd8\u5f97\u4fee\u6539root\u7528\u6237\u767b\u5165\u65f6\u8fdb\u5165\u7684\u76ee\u5f55\uff0c\u540c\u65f6\u5220\u9664shadow\u4e2d\u5bf9\u5e94root\u7528\u6237\u7684\u767b\u5165\u5bc6\u7801\uff0croot\u7528\u6237\u7684\u5bc6\u7801\u53ef\u4ee5\u5728\u767b\u5165\u540e\u4f7f\u7528passwd root\u8fdb\u884c\u4fee\u6539\u3002***", '#result');
+  }
+
+  function insertCodeElement(content, container){
+    container = container || document;
+    // 创建一个 div 来放置获取到的内容，这样就可以把 content 字符串内容转换成 dom
+    // 方便我们对这个 dom 进行操作（只是创建 div，并没有插入到文档，他只存在于内存中）
+    var parent = document.createElement('div');
+    parent.innerHTML = content;
+
+    // 找到 parent 中的所有 pre 标签，并遍历
+    var $pres = $(parent).find('pre');
+    $pres.each(function(index, el) {
+      var $el = $(el),
+          html = $el.html(),
+          code = document.createElement('code'),
+          elClass = $el.attr('class');
+      if(!elClass) {return};
+          // 获取 pre 标签中，class 属性中包含的本段代码所有的编程语言
+      var language = elClass.substring(6, elClass.indexOf(';'));
+
+      code.className = 'language-' + language;
+      code.innerHTML = html;
+
+      $el.html(code);
+    });
+
+    $(container).html(parent.innerHTML);
+
+    // 最后，调用 Prism 的方法来高亮代码
+    Prism.highlightAll();
+  }
+	window._bd_share_config={
+    "common":{
+      "bdText":"根文件系统添加用户登入功能",
+      "bdDesc":$("#abstract_bdshare").text(),
+      "bdMini":"2",
+      "bdMiniList":false,
+      "bdPic":"https://s4.51cto.com/images/201710/25/bd540a4f14d822f6e69087758699358b.jpg",
+      "bdStyle":"0",
+      "bdSize":"16"
+    },
+    "share":{}
+  };
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+  setTimeout(function(){
+  	$('.bdsharebuttonbox a').removeAttr('title')
+  },1000);
+
+	var now_time = 1606581910; //当前时间
+  setInterval(function(){now_time+=0.01},10);
+
+  // 初始化页面
+  updatePage();
+  // 页面tab切换
+  zDate.visibilityAction(function () {
+    zDate.getServerTime(function (e) {
+      var updateResult = new Date(e).getTime();
+      now_time = +updateResult.toString().substr(0, 10);
+      updatePage();
+    });
+   })
+  // 定时刷新现在时间
+  setInterval(function () {
+    zDate.getServerTime(function (e) {
+      var updateResult = new Date(e).getTime();
+      now_time = +updateResult.toString().substr(0, 10);
+      updatePage();
+    });
+  }, 1000*60*2);
+  // 页面刷新
+  function updatePage() {
+    $('.presell').each(function(index, item) {
+      var end_time = $(this).data('end'); // 结束时间
+      if (!end_time) {
+        return;
+      }
+      var me = $(this);
+      if (me.lastTime) {
+        clearInterval(me.lastTime);
+        me.lastTime = null;
+      } else {
+        me.lastTime = setInterval(function() {
+          zDate.setLastTimePc(me.find('.timespan'), (end_time*1000-now_time*1000), me.lastTime, function() {
+						me.parents('.right').find('.cloumn-subscribe').removeClass('presell-color');
+						me.remove();
+						$('.pre-tips').remove();
+					});
+        }, 10);
+      }
+    });
+  }
+		//二维码显示
+		$(".group_git_box").hover(function(){
+			$(this).parents('.group_img_box').find(".group_code_box").show()
+		},function(){
+			$(this).parents('.group_img_box').find(".group_code_box").hide()
+		})
+</script>
+</div>
+<script src="https://static1.51cto.com/edu/blog/js/marked.min.js"></script><script src="https://static1.51cto.com/edu/blog/js/highlight.js"></script><script src="https://static1.51cto.com/edu/blog/js/detail_mp.js"></script><script src="https://static1.51cto.com/edu/blog/js/detail.js?v=1.0.0"></script><script src="https://static1.51cto.com/edu/blog/js/details_new.js"></script><script src="https://static1.51cto.com/edu/blog/js/copy.js"></script>    
+<div style="display:none">
+    <iframe frameborder="0" scrolling="no" width="0" height="0" src="https://log.51cto.com/pageview.php?frompos=blog_art"></iframe>
+</div>
+
+<script src="https://static1.51cto.com/edu/blog/js/pvlog.js"></script>
+<script>
+  $(".gotop").click(function(){$(window).scrollTop(0)})
+</script>
+
+
+    <script type="text/javascript">
+    //百度统计代码
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?2283d46608159c3b39fc9f1178809c21";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+
+    //自动推送链接
+    (function(){
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        }
+        else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+    </script>
+
+    <script type='text/javascript'>
+      var _vds = _vds || [];
+      window._vds = _vds;
+      (function(){
+        _vds.push(['setAccountId', '8c51975c40edfb67']);
+        (function() {
+          var vds = document.createElement('script');
+          vds.type='text/javascript';
+          vds.async = true;
+          vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'assets.growingio.com/vds.js';
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(vds, s);
+        })();
+      })();
+      //document.write(decodeURI("%3Cscript src='https://tongji.51cto.com/frontend/tj.gif' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    
+<script>
+  var uid = '';
+  var BLOG_URL = 'https://blog.51cto.com/';
+</script>
+<script src="https://static1.51cto.com/edu//blog/js/jquery.cookie.js"></script>
+<script src="https://static1.51cto.com/edu/blog/js/time-on-page.js" charset="utf-8"></script>
+<script>
+    (function(){
+        var wh=$(window).height(),fh=$('.Footer').outerHeight(true),hh=$('.Header').outerHeight(true)
+        $('.Content-box').css({'min-height': wh-fh-hh})
+    })()
+</script>
+</body>
+</html>
