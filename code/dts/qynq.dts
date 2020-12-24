@@ -28,6 +28,7 @@
       compatible = "simple-bus";
       ranges;
 
+      /*增加之后会出现新的/sys/class/gpio?*/
       axigpio0@41100000 {
             #gpio-cells = <2>;
             compatible = "xlnx,xps-gpio-1.00.a";

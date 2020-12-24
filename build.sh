@@ -12,25 +12,17 @@
 # Build setting
 #*****************************************************************************
 projectName='qynq02_axigpio'
-buildUboot='0'
-buildKernel='1'
-buildFw='0'
-buildBootBin='0'
-buildSw='1'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
-   buildUboot=$2
-   buildKernel=$3
-   buildFw=$4
-   buildBootBin=$5
 fi
 
-depends=('u-boot-xlnx' 'git clone https://github.com/Xilinx/u-boot-xlnx.git' 
-         'linux-Digilent-Dev' 'git clone http://github.com/Digilent/linux-Digilent-Dev' 
-         'qynq_base' 'git clone http://github.com/qiweiii-git/qynq_base.git')
+source depends.sh
+source ./project/$projectName/config.sh
 
-patchs=( 'u-boot-xlnx' 'u-boot.patch' )
+dependCnt=${#depends[*]}
+patchsCnt=${#patchs[*]}
+appCnt=${#apps[*]}
 
 #*****************************************************************************
 # Set environment
@@ -46,22 +38,34 @@ workDir=$(pwd)
 if [ ! -d .depend ]; then
    mkdir .depend
    echo "Info: .depend created"
-fi
 
-dependCnt=${#depends[*]}
-patchsCnt=${#patchs[*]}
+   if [[ dependCnt > 0 ]]; then
+      cd .depend
+      for((i=0; i<dependCnt; i=i+2))
+      do
+         if [ ! -d ${depends[i]} ]; then
+            echo "Getting ${depends[i]}"
+            ${depends[i+1]}
+         fi
+      done
+      cd $workDir
+      echo "Info: All depends got"
+   fi
 
-if (( $dependCnt > 0 )); then
-   cd .depend
-   for((i=0; i<dependCnt; i=i+2))
-   do
-      if [ ! -d ${depends[i]} ]; then
-         echo "Getting ${depends[i]}"
-         ${depends[i+1]}
-      fi
-   done
-   cd $workDir
-   echo "Info: All depends got"
+   if [[ patchsCnt > 0 ]]; then
+      cd .depend
+      dependDir=$(pwd)
+      for((i=0; i<patchsCnt; i=i+2))
+      do
+         cd $dependDir
+         cd ${patchs[i]}
+         echo "Applying patch ${patchs[i+1]}"
+         sudo patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+      done
+      sudo chmod 0755 -R ./
+      cd $workDir
+      echo "Info: All patchs applied"
+   fi
 fi
 
 #*****************************************************************************
@@ -73,32 +77,16 @@ MkdirBuild() {
    cp -ra ./* .build
    #cp -ra ./.depend .build
 }
-MkdirBuild
 
 #*****************************************************************************
 # Build u-boot
 #*****************************************************************************
 BuildUboot() {
+   cd $workDir
    cd .depend/u-boot-xlnx
    git checkout xilinx-v2015.4
 
-   patchApply='0'
-   if (( $patchsCnt > 0 )); then
-      for((i=0; i<patchsCnt; i=i+2))
-      do
-         if [[ ${patchs[i]} -eq 'u-boot-xlnx' ]]; then
-            echo "Applying patch for ${patchs[i]}"
-            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
-            patchApply='1'
-         fi
-      done
-   fi
-
-   if [[ $patchApply -eq '1' ]]; then
-      make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- qynq_config
-   else
-      make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- zynq_zed_config
-   fi
+   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- qynq_config
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
 
    cp u-boot $workDir/project/$projectName/bin
@@ -113,6 +101,7 @@ BuildUboot() {
 # Build kernel
 #*****************************************************************************
 BuildKernel() {
+   cd $workDir
    cd .depend/linux-Digilent-Dev
    #make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- xilinx_zynq_defconfig
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- uImage LOADADDR=0x00008000
@@ -133,9 +122,11 @@ BuildKernel() {
 # Build softwares
 #*****************************************************************************
 BuildSw() {
-   cd .build/code/software/drivers/led
-   arm-xilinx-linux-gnueabi-gcc -o LedGpioTest LedGpioTest.c
-   cp LedGpioTest $workDir/project/$projectName/bin
+   appDir=$1
+   makeDir=$2
+   cd .build/$makeDir
+   arm-xilinx-linux-gnueabi-gcc -o $appDir $appDir.c
+   cp $appDir $workDir/project/$projectName/bin
    cd $workDir
 }
 
@@ -143,6 +134,7 @@ BuildSw() {
 # Build rootfs
 #*****************************************************************************
 BuildRootfs() {
+   cd $workDir
    mkdir -p .build/.depend/
    cp -ra .depend/qynq_base .build/.depend/
 
@@ -151,7 +143,15 @@ BuildRootfs() {
    chmod u+rwx arm_ramdisk.image
    mkdir tmp_mnt
    sudo mount -o loop arm_ramdisk.image tmp_mnt/
-   sudo cp $workDir/project/$projectName/bin/LedGpioTest tmp_mnt/usr/sbin/
+
+   if [[ appCnt > 0 ]]; then
+      for((i=0; i<appCnt; i=i+2))
+      do
+         appName=${apps[i]##*/}
+         sudo cp $workDir/project/$projectName/bin/$appName tmp_mnt/usr/sbin/
+      done
+   fi
+
    sudo umount tmp_mnt/
    gzip arm_ramdisk.image
 
@@ -166,6 +166,7 @@ BuildRootfs() {
 # Build firmware
 #*****************************************************************************
 BuildFw() {
+   cd $workDir
    mkdir -p .build/.depend/
    cp -ra .depend/qynq_base .build/.depend/
    cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName
@@ -183,7 +184,6 @@ BuildFw() {
 # Build FSBL
 #*****************************************************************************
 BuildBootBin() {
-   MkdirBuild
    cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
 
    cd .build/project/$projectName/bin
@@ -194,7 +194,6 @@ BuildBootBin() {
    cd $workDir
 
    # Build BOOT.BIN
-   MkdirBuild
    cd .build/project/$projectName/bin
    cp u-boot u-boot.elf
 
@@ -215,20 +214,32 @@ BuildBootBin() {
 # Main
 #*****************************************************************************
 if [[ $buildUboot -eq 1 ]]; then
+   MkdirBuild
    BuildUboot
 fi
 
 if [[ $buildKernel -eq 1 ]]; then
+   MkdirBuild
    BuildKernel
-   BuildSw
+
+   if [[ appCnt > 0 ]]; then
+      for((i=0; i<appCnt; i=i+2))
+      do
+         echo "Building ${apps[i]}"
+         BuildSw ${apps[i]} ${apps[i+1]}
+      done
+   fi
+
    BuildRootfs
 fi
 
 if [[ $buildFw -eq 1 ]]; then
+   MkdirBuild
    BuildFw
 fi
 
 if [[ $buildBootBin -eq 1 ]]; then
+   MkdirBuild
    BuildBootBin
 fi
 
