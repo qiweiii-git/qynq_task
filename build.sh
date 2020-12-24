@@ -84,7 +84,19 @@ MkdirBuild() {
 BuildUboot() {
    cd $workDir
    cd .depend/u-boot-xlnx
+   git add ./ --all
+   git reset --hard HEAD
    git checkout xilinx-v2015.4
+
+   if [[ $patchsCnt > 0 ]]; then
+      for((i=0; i<patchsCnt; i=i+2))
+      do
+         if [[ ${patchs[i]} -eq 'u-boot-xlnx' ]]; then
+            echo "Applying patch for ${patchs[i]}"
+            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+         fi
+      done
+   fi
 
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- qynq_config
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
@@ -103,8 +115,7 @@ BuildUboot() {
 BuildKernel() {
    cd $workDir
    cd .depend/linux-Digilent-Dev
-   #make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- xilinx_zynq_defconfig
-   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- uImage LOADADDR=0x00008000
+   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- xilinx_zynq_defconfig uImage LOADADDR=0x00008000
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
 
    cp arch/arm/boot/uImage ../../project/$projectName/bin
