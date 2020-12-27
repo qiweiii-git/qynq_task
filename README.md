@@ -9,3 +9,6 @@
  
 ## qynq02_axigpio
  添加AXI GPIO控制LED功能。
+
+## qynq03_regrw
+ 寄存器控制工程。

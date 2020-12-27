@@ -11,7 +11,7 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq02_axigpio'
+projectName='qynq03_regrw'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -23,6 +23,7 @@ source ./project/$projectName/config.sh
 dependCnt=${#depends[*]}
 patchsCnt=${#patchs[*]}
 appCnt=${#apps[*]}
+drvCnt=${#drvs[*]}
 
 #*****************************************************************************
 # Set environment
@@ -72,7 +73,7 @@ fi
 # Copy files
 #*****************************************************************************
 MkdirBuild() {
-   rm -rf .build
+   sudo rm -rf .build
    mkdir .build
    cp -ra ./* .build
    #cp -ra ./.depend .build
@@ -130,13 +131,41 @@ BuildKernel() {
 }
 
 #*****************************************************************************
+# Build drivers
+#*****************************************************************************
+BuildDrv() {
+   drvDir=$1
+   makeDir=$2
+   cd .build/$makeDir
+
+   if [[ drvCnt > 0 ]]; then
+      for((i=0; i<drvCnt; i=i+2))
+      do
+         echo "obj-m += ${drvs[i]}.o" >> Makefile
+      done
+   fi
+
+   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
+
+   if [[ drvCnt > 0 ]]; then
+      for((i=0; i<drvCnt; i=i+2))
+      do
+         cp ${drvs[i]}.ko $workDir/project/$projectName/bin
+      done
+   fi
+
+   cd $workDir
+}
+
+
+#*****************************************************************************
 # Build softwares
 #*****************************************************************************
 BuildSw() {
    appDir=$1
    makeDir=$2
    cd .build/$makeDir
-   arm-xilinx-linux-gnueabi-gcc -o $appDir $appDir.c
+   arm-xilinx-linux-gnueabi-gcc -I../utils -o $appDir $appDir.c ../utils/*.c
    cp $appDir $workDir/project/$projectName/bin
    cd $workDir
 }
@@ -155,11 +184,21 @@ BuildRootfs() {
    mkdir tmp_mnt
    sudo mount -o loop arm_ramdisk.image tmp_mnt/
 
+   sudo cp $workDir/code/rootfs/* tmp_mnt/ -rf
+
    if [[ appCnt > 0 ]]; then
       for((i=0; i<appCnt; i=i+2))
       do
          appName=${apps[i]##*/}
          sudo cp $workDir/project/$projectName/bin/$appName tmp_mnt/usr/sbin/
+      done
+   fi
+
+   if [[ drvCnt > 0 ]]; then
+      for((i=0; i<drvCnt; i=i+2))
+      do
+         drvName=${drvs[i]##*/}
+         sudo cp $workDir/project/$projectName/bin/$drvName.ko tmp_mnt/lib/modules
       done
    fi
 
@@ -224,14 +263,17 @@ BuildBootBin() {
 #*****************************************************************************
 # Main
 #*****************************************************************************
-if [[ $buildUboot -eq 1 ]]; then
-   MkdirBuild
-   BuildUboot
-fi
-
 if [[ $buildKernel -eq 1 ]]; then
    MkdirBuild
    BuildKernel
+
+   if [[ drvCnt > 0 ]]; then
+      for((i=0; i<drvCnt; i=i+2))
+      do
+         echo "Building ${drvs[i]}"
+         BuildDrv ${drvs[i]} ${drvs[i+1]}
+      done
+   fi
 
    if [[ appCnt > 0 ]]; then
       for((i=0; i<appCnt; i=i+2))
@@ -250,6 +292,8 @@ if [[ $buildFw -eq 1 ]]; then
 fi
 
 if [[ $buildBootBin -eq 1 ]]; then
+   MkdirBuild
+   BuildUboot
    MkdirBuild
    BuildBootBin
 fi
