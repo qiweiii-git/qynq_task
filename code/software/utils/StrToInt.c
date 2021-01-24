@@ -12,29 +12,32 @@
 //*****************************************************************************
 // Functions
 //*****************************************************************************
-int StrToIntCtrl(char *str)
+int StrToIntCtrl(char *str, unsigned int strLen)
 {
    int i = 0;
    int hexValue = 0;
    int intValue = 0;
    int intValueSel = 0;
-   int strLen = 0;
+   unsigned int strLenCap;
    long long baseValue = 1;
    int baseCoef = 10;
+
+   strLenCap = strLen;
 
    while(*str == '0')
    {
       str++;
+      strLenCap--;
    }
 
    if(*str == 'x')
    {
       hexValue = 1;
       str++;
+      strLenCap--;
    }
 
-   strLen = strlen(str);
-
+   //strLen = strlen(str);
    if(hexValue == 1)
    {
       baseCoef = 16;
@@ -44,7 +47,7 @@ int StrToIntCtrl(char *str)
       baseCoef = 10;
    }
 
-   for(i =0; i < strLen; i++)
+   for(i =0; i < strLenCap; i++)
    {
       baseValue = baseCoef*baseValue;
    }

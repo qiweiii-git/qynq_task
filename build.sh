@@ -11,7 +11,7 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq03_regrw'
+projectName='qynq04_ovhdmi'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -77,6 +77,20 @@ MkdirBuild() {
    mkdir .build
    cp -ra ./* .build
    #cp -ra ./.depend .build
+}
+
+#*****************************************************************************
+# Build standalone
+#*****************************************************************************
+BuildStandalone() {
+   cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
+
+   cd .build/project/$projectName/bin
+   echo "RunStandalone $projectName " >> Run.tcl
+   xsdk -batch -source Run.tcl
+
+   cp sw_workspace/$projectName\_sw/Debug/$projectName\_sw.elf $workDir/project/$projectName/bin
+   cd $workDir
 }
 
 #*****************************************************************************
@@ -243,15 +257,20 @@ BuildBootBin() {
    cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf $workDir/project/$projectName/bin
    cd $workDir
 
+   sleep 10
    # Build BOOT.BIN
    cd .build/project/$projectName/bin
-   cp u-boot u-boot.elf
 
    echo "the_ROM_image:"                           >> image.bif
    echo "{"                                        >> image.bif
    echo "   [bootloader]./"$projectName"_fsbl.elf" >> image.bif
    echo "   ./$projectName.bit"                    >> image.bif
-   echo "   ./u-boot.elf"                          >> image.bif
+   if [[ ${elf[i]} != 'uboot' ]]; then
+      echo "   ./"${elf[i]}"_sw.elf"                 >> image.bif
+   else
+      cp u-boot u-boot.elf
+      echo "   ./u-boot.elf"                          >> image.bif
+   fi
    echo "}"                                        >> image.bif
    echo "exec bootgen -arch zynq -image image.bif -w -o BOOT.BIN" >> RunBoot.tcl
    xsdk -batch -source RunBoot.tcl
@@ -293,7 +312,12 @@ fi
 
 if [[ $buildBootBin -eq 1 ]]; then
    MkdirBuild
-   BuildUboot
+   if [[ ${elf[i]} != 'uboot' ]]; then
+      BuildStandalone
+   else
+      BuildUboot
+   fi
+   sleep 10
    MkdirBuild
    BuildBootBin
 fi
