@@ -356,9 +356,9 @@ cam_wrapper u_cam_wrapper
    .DEBUG                  ( )
 );
 
-assign axis_i.tdata = {axis_tdata[4:0], 3'd0,
-                       axis_tdata[10:5], 2'd0,
-                       axis_tdata[15:11], 3'd0};
+assign axis_i.tdata = {axis_tdata[4:0], 3'd0,   // R
+                       axis_tdata[15:11], 3'd0, // B
+                       axis_tdata[10:5], 2'd0}  // G
 
 //*****************************************************************************
 // VTG
@@ -400,7 +400,7 @@ u_axis2native
 // HDMI OUT
 //*****************************************************************************
 assign HDMI_OEN = 1'b1;
-rgb2dvi u_rgb2dvi
+rgb2dvi u_rbg2dvi
 (
    .PixelClk               ( clk_74p25m_bufg ),
    .SerialClk              ( clk_371p25m_bufg ),

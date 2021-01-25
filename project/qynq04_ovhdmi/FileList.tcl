@@ -12,7 +12,7 @@ add_files ../../code/firmware/ov5640/cam_wrapper.v
 
 add_files ../../.depend/qynq_base/fpgatools/qwiregctrl.v
 add_files ../../.depend/qynq_base/fpgatools/axis/vid2axis.v
-add_files ../../.depend/qynq_base/fpgatools/hdmi/axis2native.sv
+add_files ../../.depend/qynq_base/fpgatools/axis/axis2native.sv
 add_files ../../.depend/qynq_base/fpgatools/hdmi/hdmi_vtg.v
 add_files ../../.depend/qynq_base/fpgatools/iic/i2c_com.v
 add_files ../../.depend/qynq_base/fpgatools/iic/i2c_config.sv

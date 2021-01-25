@@ -67,7 +67,7 @@ struct RegInfo_t CamInitReg[] =
 	{0x3004, 0xff},// enable clocks 
 	{0x300e, 0x58},// MIPI power down, DVP enable
 	{0x302e, 0x00},
-	{0x4300, 0x60},// RGB565
+	{0x4300, 0x60},// RGB565  {b[4:0],g[5:3]}, {g[2:0],r[4:0]}
 	{0x501f, 0x01},// ISP RGB 
 	{0x440e, 0x00},
 	{0x5000, 0xa7}, // Lenc on, raw gamma on, BPC on, WPC on, CIP on // AEC target    鑷姩鏇濆厜鎺у埗
