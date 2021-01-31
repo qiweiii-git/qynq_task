@@ -11,7 +11,7 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq04_ovhdmi'
+projectName='qynq05_hlshdmi'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -28,8 +28,14 @@ drvCnt=${#drvs[*]}
 #*****************************************************************************
 # Set environment
 #*****************************************************************************
-source /opt/Xilinx/SDK/2015.4/settings64.sh
-source /opt/Xilinx/Vivado/2015.4/settings64.sh
+if [[ $ver -eq '2020' ]]; then
+   source /tools/Xilinx/Vivado/2020.2/settings64.sh
+   source /tools/Xilinx/Vitis/2020.2/settings64.sh
+else
+   source /opt/Xilinx/SDK/2015.4/settings64.sh
+   source /opt/Xilinx/Vivado/2015.4/settings64.sh
+fi
+
 
 #*****************************************************************************
 # Get depends
@@ -86,8 +92,13 @@ BuildStandalone() {
    cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
 
    cd .build/project/$projectName/bin
-   echo "RunStandalone $projectName " >> Run.tcl
-   xsdk -batch -source Run.tcl
+   if [[ $ver -eq '2020' ]]; then
+      echo "RunStandalone2020 $projectName " >> Run.tcl
+      xsct Run.tcl
+   else
+      echo "RunStandalone $projectName " >> Run.tcl
+      xsdk -batch -source Run.tcl
+   fi
 
    cp sw_workspace/$projectName\_sw/Debug/$projectName\_sw.elf $workDir/project/$projectName/bin
    cd $workDir
@@ -236,11 +247,19 @@ BuildFw() {
    cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName
 
    cd .build/project/$projectName
-   echo "RunFw $projectName xc7z020clg400-2 0 " >> Run.tcl
+   if [[ $ver -eq '2020' ]]; then
+      echo "RunFw $projectName xc7z020clg400-2 0 2020 " >> Run.tcl
+   else
+      echo "RunFw $projectName xc7z020clg400-2 0 " >> Run.tcl
+   fi
    vivado -mode batch -source Run.tcl
 
    cp $projectName.runs/impl_1/$projectName.bit $workDir/project/$projectName/bin
-   cp $projectName.sdk/$projectName.hdf $workDir/project/$projectName/bin
+   if [[ $ver -eq '2020' ]]; then
+      cp $projectName.sdk/$projectName.xsa $workDir/project/$projectName/bin
+   else
+      cp $projectName.sdk/$projectName.hdf $workDir/project/$projectName/bin
+   fi
    cd $workDir
 }
 
@@ -251,8 +270,13 @@ BuildBootBin() {
    cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
 
    cd .build/project/$projectName/bin
-   echo "RunFsbl $projectName " >> Run.tcl
-   xsdk -batch -source Run.tcl
+   if [[ $ver -eq '2020' ]]; then
+      echo "RunFsbl2020 $projectName " >> Run.tcl
+      xsct Run.tcl
+   else
+      echo "RunFsbl $projectName " >> Run.tcl
+      xsdk -batch -source Run.tcl
+   fi
 
    cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf $workDir/project/$projectName/bin
    cd $workDir
@@ -273,7 +297,11 @@ BuildBootBin() {
    fi
    echo "}"                                        >> image.bif
    echo "exec bootgen -arch zynq -image image.bif -w -o BOOT.BIN" >> RunBoot.tcl
-   xsdk -batch -source RunBoot.tcl
+   if [[ $ver -eq '2020' ]]; then
+      xsct RunBoot.tcl
+   else
+      xsdk -batch -source RunBoot.tcl
+   fi
    cp BOOT.BIN $workDir/project/$projectName/bin
 
    cd $workDir

@@ -41,6 +41,6 @@
 #define false 1
 #define true 0
 
-#define REGCTRL_BASEADDR XPAR_AXI_BRAM_CTRL_0_S_AXI_BASEADDR
+#define REGCTRL_BASEADDR 0x40000000
 
 #endif

@@ -358,7 +358,7 @@ cam_wrapper u_cam_wrapper
 
 assign axis_i.tdata = {axis_tdata[4:0], 3'd0,   // R
                        axis_tdata[15:11], 3'd0, // B
-                       axis_tdata[10:5], 2'd0}  // G
+                       axis_tdata[10:5], 2'd0}; // G
 
 //*****************************************************************************
 // VTG
