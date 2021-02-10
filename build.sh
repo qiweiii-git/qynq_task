@@ -11,7 +11,7 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq05_hlshdmi'
+projectName='qynq06_sdp2hdmi'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -35,7 +35,6 @@ else
    source /opt/Xilinx/SDK/2015.4/settings64.sh
    source /opt/Xilinx/Vivado/2015.4/settings64.sh
 fi
-
 
 #*****************************************************************************
 # Get depends
@@ -310,6 +309,11 @@ BuildBootBin() {
 #*****************************************************************************
 # Main
 #*****************************************************************************
+if [ ! -d $workDir/project/$projectName/bin ]; then
+   mkdir $workDir/project/$projectName/bin
+   echo "Info: /Bin created"
+fi
+
 if [[ $buildKernel -eq 1 ]]; then
    MkdirBuild
    BuildKernel
