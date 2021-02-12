@@ -82,6 +82,7 @@ int main(int argc, char **argv)
       *regAddress = wData;
       printf("Writing 0x%x to 0x%x\n", wData, address);
    }
+   munmap(m_MapAddress, 0x00100000);
 
    return 0;
 }

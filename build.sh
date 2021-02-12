@@ -195,7 +195,8 @@ BuildSw() {
    appDir=$1
    makeDir=$2
    cd .build/$makeDir
-   arm-xilinx-linux-gnueabi-gcc -I../utils -o $appDir $appDir.c ../utils/*.c
+   arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -o $appDir \
+      $appDir.c ../utils/*.c ../applications/*.c
    cp $appDir $workDir/project/$projectName/bin
    cd $workDir
 }
@@ -206,7 +207,7 @@ BuildSw() {
 BuildRootfs() {
    cd $workDir
    mkdir -p .build/rootfs/
-   mv -f code/rootfs/arm_ramdisk.image.gz .build/rootfs/
+   cp -f code/rootfs/arm_ramdisk.image.gz .build/rootfs/
 
    cd .build/rootfs/
    gunzip arm_ramdisk.image.gz
@@ -214,7 +215,7 @@ BuildRootfs() {
    mkdir tmp_mnt
    sudo mount -o loop arm_ramdisk.image tmp_mnt/
 
-   sudo cp $workDir/code/rootfs/* tmp_mnt/ -rf
+   sudo cp $workDir/code/rootfs/etc tmp_mnt/ -rf
 
    if [[ appCnt > 0 ]]; then
       for((i=0; i<appCnt; i=i+2))

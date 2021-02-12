@@ -3,13 +3,14 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-buildKernel='0'
+buildKernel='1'
 buildFw='0'
-buildBootBin='1'
+buildBootBin='0'
 
 #*****************************************************************************
 # Build sources
 #*****************************************************************************
 elf='uboot'
 #drvs=('reg/RegDrv' 'code/software/drivers')
-apps=('reg/regrw' 'code/software/subsystems')
+apps=('reg/regrw' 'code/software/subsystems' 
+      'apps/qynq07_sdp2hdmi' 'code/software/subsystems')
