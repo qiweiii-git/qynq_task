@@ -1,46 +1,34 @@
 //*****************************************************************************
-//    # #              Name   : BaseDef.h
-//  #     #            Date   : Jan. 20, 2021
+//    # #              Name   : BmpRead.h
+//  #     #            Date   : Feb. 12, 2021
 // #    #  #  #     #  Author : Qiwei Wu
 //  #     #  # #  # #  Version: 1.0
 //    # #  #    #   #
-//
+// BMP picture reading.
 //*****************************************************************************
 
-#ifndef __BASE_DEFINE__
-#define __BASE_DEFINE__
+#ifndef __BMP_READ_DEFINE__
+#define __BMP_READ_DEFINE__
 
 //*****************************************************************************
 // Includes
 //*****************************************************************************
-#include "xil_printf.h"
-#include "xil_io.h"
-#include "xparameters.h"
+#include "BaseDef.h"
+#include <string.h>
+#include <sys/types.h>		//定义了一些常用数据类型，比如size_t
+#include <fcntl.h>			//定义了open、creat等函数，以及表示文件权限的宏定义
+#include <unistd.h>			//定义了read、write、close、lseek等函数
+#include <errno.h>			//与全局变量errno相关的定义
+#include <sys/ioctl.h>		//定义了ioctl函数 
 
 //*****************************************************************************
-// Reg define
+// Variables
 //*****************************************************************************
-#define REG_FW_VER            0x0
-#define REG_LED_CTRL          0x1
-#define REG_FMT_DEF           0x2
-#define REG_CAM_CONFIG_EN     0x3
-#define REG_CAM_CONFIG_DATA   0x4
-#define REG_CAM_CONFIG_STATUS 0x5
-#define REG_CAM_PCLK_FREQ     0x6
-#define REG_CLK_74P25_FREQ    0x7
-#define REG_AXIS_DEBUG        0x8
+u8 frameBuf[1920*1080*3] __attribute__ ((aligned(64)));
 
 //*****************************************************************************
-// Defines
+// Functions
 //*****************************************************************************
-#define regRead  Xil_In32
-#define regWrite Xil_Out32
-
-//#define printf xil_printf
-
-#define false 1
-#define true 0
-
-#define REGCTRL_BASEADDR 0x40000000
+int BmpRead(char *fileName, u32 memAddress);
 
 #endif

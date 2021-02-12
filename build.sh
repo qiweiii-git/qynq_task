@@ -72,9 +72,9 @@ if [ ! -d .depend ]; then
          cd $dependDir
          cd ${patchs[i]}
          echo "Applying patch ${patchs[i+1]}"
-         sudo patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+         patch -p1 < $workDir/code/patchs/${patchs[i+1]}
       done
-      sudo chmod 0755 -R ./
+      #sudo chmod 0755 -R ./
       cd $workDir
       echo "Info: All patchs applied"
    fi
@@ -337,16 +337,6 @@ BuildUboot2020() {
    cd $workDir
    cp -r .depend/u-boot-xlnx .build
    cd .build/u-boot-xlnx
-
-#   if [[ $patchsCnt > 0 ]]; then
-#      for((i=0; i<patchsCnt; i=i+2))
-#      do
-#         if [[ ${patchs[i]} -eq 'u-boot-xlnx' ]]; then
-#            echo "Applying patch for ${patchs[i]}"
-#            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
-#         fi
-#      done
-#   fi
 
    export CROSS_COMPILE=arm-linux-gnueabihf-
    export ARCH=arm

@@ -18,6 +18,7 @@
 // Includes
 //*****************************************************************************
 #include "VdmaConfig.h"
+#include "BmpRead.h"
 
 //*****************************************************************************
 // Main
@@ -41,7 +42,11 @@ int main()
    regValue = regRead((u32)regCtrlAddr + 0x0);
    printf("%s:Reg_0x%x:0x%x.\r\n", __func__ , 0x0, regValue);
 
+   // BMP read
+   // Waiting for find out the SD card device name
+   BmpRead("/?/init.bmp", 0x0);
+
    // VDMA control
    VdmaInit((u32)vdmaCtrlAddr);
-   VdmaCfgRead(0, 0x10000000, 1920*4, 1080);
+   VdmaCfgRead(0, 0x0, 1920*3, 1080);
 }
