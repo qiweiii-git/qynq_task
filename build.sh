@@ -11,7 +11,7 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-projectName='qynq06_sdp2hdmi'
+projectName='qynq07_sdp2hdmi'
 
 if [ ! $1 -eq '' ]; then
    projectName=$1
@@ -31,6 +31,7 @@ drvCnt=${#drvs[*]}
 if [[ $ver -eq '2020' ]]; then
    source /tools/Xilinx/Vivado/2020.2/settings64.sh
    source /tools/Xilinx/Vitis/2020.2/settings64.sh
+   source /tools/Xilinx/petalinux/2020.2/settings.sh
 else
    source /opt/Xilinx/SDK/2015.4/settings64.sh
    source /opt/Xilinx/Vivado/2015.4/settings64.sh
@@ -50,8 +51,13 @@ if [ ! -d .depend ]; then
       for((i=0; i<dependCnt; i=i+2))
       do
          if [ ! -d ${depends[i]} ]; then
-            echo "Getting ${depends[i]}"
-            ${depends[i+1]}
+            if [[ -d /tools/Xilinx/source/${depends[i]} ]]; then
+               echo "Getting ${depends[i]} from local"
+               cp -ra /tools/Xilinx/source/${depends[i]} ./
+            else
+               echo "Getting ${depends[i]} from URL"
+               ${depends[i+1]}
+            fi
          fi
       done
       cd $workDir
@@ -88,7 +94,7 @@ MkdirBuild() {
 # Build standalone
 #*****************************************************************************
 BuildStandalone() {
-   cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
+   cp -f code/firmware/build/Run.tcl .build/project/$projectName/bin
 
    cd .build/project/$projectName/bin
    if [[ $ver -eq '2020' ]]; then
@@ -199,10 +205,10 @@ BuildSw() {
 #*****************************************************************************
 BuildRootfs() {
    cd $workDir
-   mkdir -p .build/.depend/
-   cp -ra .depend/qynq_base .build/.depend/
+   mkdir -p .build/rootfs/
+   mv -f code/rootfs/arm_ramdisk.image.gz .build/rootfs/
 
-   cd .build/.depend/qynq_base/rootfs
+   cd .build/rootfs/
    gunzip arm_ramdisk.image.gz
    chmod u+rwx arm_ramdisk.image
    mkdir tmp_mnt
@@ -242,8 +248,7 @@ BuildRootfs() {
 BuildFw() {
    cd $workDir
    mkdir -p .build/.depend/
-   cp -ra .depend/qynq_base .build/.depend/
-   cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName
+   cp -f code/firmware/build/Run.tcl .build/project/$projectName
 
    cd .build/project/$projectName
    if [[ $ver -eq '2020' ]]; then
@@ -266,7 +271,7 @@ BuildFw() {
 # Build FSBL
 #*****************************************************************************
 BuildBootBin() {
-   cp -f .depend/qynq_base/build/Run.tcl .build/project/$projectName/bin
+   cp -f code/firmware/build/Run.tcl .build/project/$projectName/bin
 
    cd .build/project/$projectName/bin
    if [[ $ver -eq '2020' ]]; then
@@ -307,6 +312,74 @@ BuildBootBin() {
 }
 
 #*****************************************************************************
+# Build FSBL
+#*****************************************************************************
+BuildPetaLinux() {
+   # hard to use
+   cd .build/project/$projectName/bin
+   petalinux-create --type project --template zynq --name qynq06_sdp2hdmi
+   cd qynq06_sdp2hdmi
+   petalinux-config --get-hw-description ../qynq06_sdp2hdmi.xsa
+   #/tools/Xilinx/source/u-boot-xlnx
+   #/tools/Xilinx/source/linux-xlnx 
+   petalinux-config -c u-boot
+   petalinux-config -c kernel
+   petalinux-config -c rootfs
+   petalinux-build
+   petalinux-package --boot --fsbl ./images/linux/zynq_fsbl.elf --fpga ../qynq06_sdp2hdmi.bit --uboot --force
+}
+
+#*****************************************************************************
+# Build u-boot 2020
+#*****************************************************************************
+BuildUboot2020() {
+   cd $workDir
+   cp -r .depend/u-boot-xlnx .build
+   cd .build/u-boot-xlnx
+
+#   if [[ $patchsCnt > 0 ]]; then
+#      for((i=0; i<patchsCnt; i=i+2))
+#      do
+#         if [[ ${patchs[i]} -eq 'u-boot-xlnx' ]]; then
+#            echo "Applying patch for ${patchs[i]}"
+#            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+#         fi
+#      done
+#   fi
+
+   export CROSS_COMPILE=arm-linux-gnueabihf-
+   export ARCH=arm
+   make xilinx_zynq_virt_defconfig
+   export DEVICE_TREE="zynq-zc702"
+   make
+
+   cp u-boot $workDir/project/$projectName/bin
+   cd $workDir
+}
+
+#*****************************************************************************
+# Build kernel2020
+#*****************************************************************************
+BuildKernel2020() {
+   cd $workDir
+   #cp -r .depend/linux-xlnx .build
+   cd .depend/linux-xlnx
+
+   make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- xilinx_zynq_defconfig uImage UIMAGE_LOADADDR=0x00008000
+   make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
+
+   cp arch/arm/boot/uImage ../../project/$projectName/bin
+   cd $workDir/.depend/
+
+   # Build dtb
+   cd linux-xlnx/arch/arm/boot/dts
+   cp $workDir/code/dts/qynq.dts ./
+   dtc -I dts -O dtb -o devicetree.dtb qynq.dts
+   cp devicetree.dtb $workDir/project/$projectName/bin
+   cd $workDir
+}
+
+#*****************************************************************************
 # Main
 #*****************************************************************************
 if [ ! -d $workDir/project/$projectName/bin ]; then
@@ -316,7 +389,12 @@ fi
 
 if [[ $buildKernel -eq 1 ]]; then
    MkdirBuild
-   BuildKernel
+
+   if [[ $ver -eq '2020' ]]; then
+      BuildKernel2020
+   else
+      BuildKernel
+   fi
 
    if [[ drvCnt > 0 ]]; then
       for((i=0; i<drvCnt; i=i+2))
@@ -347,11 +425,20 @@ if [[ $buildBootBin -eq 1 ]]; then
    if [[ ${elf[i]} != 'uboot' ]]; then
       BuildStandalone
    else
-      BuildUboot
+      if [[ $ver -eq '2020' ]]; then
+         BuildUboot2020
+      else
+         BuildUboot
+      fi
    fi
    sleep 10
    MkdirBuild
    BuildBootBin
+fi
+
+if [[ $buildPetaLinux -eq 1 ]]; then
+   MkdirBuild
+   BuildPetaLinux
 fi
 
 echo "Info: All builds got"

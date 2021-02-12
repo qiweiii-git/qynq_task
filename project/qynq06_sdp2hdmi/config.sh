@@ -3,14 +3,15 @@
 #*****************************************************************************
 # Build setting
 #*****************************************************************************
-buildKernel='0'
-buildFw='1'
-buildBootBin='0'
+buildKernel='1'
+buildFw='0'
+buildBootBin='1'
+buildPetaLinux='0' # hard to use
 
 #*****************************************************************************
 # Build sources
 #*****************************************************************************
 ver='2020'
-#elf=('qynq06_sdp2hdmi' 'main.c')
+elf=('uboot')
 drvs=('reg/RegDrv' 'code/software/drivers')
 apps=('reg/regrw' 'code/software/subsystems')
