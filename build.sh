@@ -33,8 +33,8 @@ if [[ $ver -eq '2020' ]]; then
    source /tools/Xilinx/Vitis/2020.2/settings64.sh
    source /tools/Xilinx/petalinux/2020.2/settings.sh
 else
-   source /opt/Xilinx/SDK/2015.4/settings64.sh
-   source /opt/Xilinx/Vivado/2015.4/settings64.sh
+   source /tools/Xilinx/SDK/2015.4/settings64.sh
+   source /tools/Xilinx/Vivado/2015.4/settings64.sh
 fi
 
 #*****************************************************************************
@@ -254,7 +254,7 @@ BuildFw() {
    if [[ $ver -eq '2020' ]]; then
       echo "RunFw $projectName xc7z020clg400-2 0 2020 " >> Run.tcl
    else
-      echo "RunFw $projectName xc7z020clg400-2 0 " >> Run.tcl
+      echo "RunFw $projectName xc7z020clg400-2 0 2015" >> Run.tcl
    fi
    vivado -mode batch -source Run.tcl
 
@@ -293,11 +293,11 @@ BuildBootBin() {
    echo "{"                                        >> image.bif
    echo "   [bootloader]./"$projectName"_fsbl.elf" >> image.bif
    echo "   ./$projectName.bit"                    >> image.bif
-   if [[ ${elf[i]} != 'uboot' ]]; then
-      echo "   ./"${elf[i]}"_sw.elf"                 >> image.bif
+   if [[ ! $elf -eq 'uboot' ]]; then
+      echo "   ./"$elf"\_sw.elf"                   >> image.bif
    else
       cp u-boot u-boot.elf
-      echo "   ./u-boot.elf"                          >> image.bif
+      echo "   ./u-boot.elf"                       >> image.bif
    fi
    echo "}"                                        >> image.bif
    echo "exec bootgen -arch zynq -image image.bif -w -o BOOT.BIN" >> RunBoot.tcl
