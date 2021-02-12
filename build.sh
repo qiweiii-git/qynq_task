@@ -260,6 +260,12 @@ BuildFw() {
    vivado -mode batch -source Run.tcl
 
    cp $projectName.runs/impl_1/$projectName.bit $workDir/project/$projectName/bin
+
+   tar -zcvf $projectName\_rpt.tar.gz \
+      $projectName.runs/impl_1/$projectName\_timing_summary_routed.rpt \
+      $projectName.runs/impl_1/$projectName\_utilization_placed.rpt
+   cp $projectName\_rpt.tar.gz $workDir/project/$projectName/bin
+
    if [[ $ver -eq '2020' ]]; then
       cp $projectName.sdk/$projectName.xsa $workDir/project/$projectName/bin
    else
