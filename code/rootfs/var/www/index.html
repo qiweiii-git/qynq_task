@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+  <title> QYNQ Development Board </title>
+  <link type="text/css" rel="stylesheet" href="css/main.css" />
+  <script>
+  </script>
+</head>
+
+<body>
+
+<img src="images/logo_v1.1.png" style="padding-left:30px"></img>
+
+<div id="container">
+<b class="rtop">
+  <b class="r1"></b> <b class="r2"></b> <b class="r3"></b> <b class="r4"></b>
+</b>
+
+<h1>QYNQ Development Board</h1>
+
+<h2> Toggle Unit LED </h2>
+<p id="ledResult">Led is now Off</p>
+<iframe name ="server" style ="display:none;" src=' '> </iframe> 
+<form action="cgi-bin/server.cgi" method=POST target="server">
+   <input type="button" name="Toggle LED" value="Toggle LED" onclick="LedToggle()" />
+</form>
+
+<h2> External Links </h2>
+<p>
+<ul>
+<li> <a href="https://github.com/qiweiii-git/qynq_task">Github Repository</a> </li>
+</ul>
+</p>
+
+<b class="rbottom">
+  <b class="r4"></b> <b class="r3"></b> <b class="r2"></b> <b class="r1"></b>
+</b>
+</div>
+
+<script type="text/javascript" src="js/main.js"></script>
+
+</body>
+</html>

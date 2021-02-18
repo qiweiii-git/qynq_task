@@ -197,9 +197,17 @@ BuildSw() {
    appDir=$1
    makeDir=$2
    cd .build/$makeDir
-   arm-xilinx-linux-gnueabi-gcc -lpthread -I../utils -I../applications -o $appDir \
-      $appDir.c ../utils/*.c ../applications/*.c
-   cp $appDir $workDir/project/$projectName/bin
+
+   if [[ $appDir = *cgi* ]]; then
+      # build CGI
+      arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -o $appDir.cgi \
+         $appDir.c ../utils/*.c ../applications/*.c
+      cp $appDir.cgi $workDir/project/$projectName/bin
+   else
+      arm-xilinx-linux-gnueabi-gcc -lpthread -I../utils -I../applications -o $appDir \
+         $appDir.c ../utils/*.c ../applications/*.c
+      cp $appDir $workDir/project/$projectName/bin
+   fi
    cd $workDir
 }
 
@@ -217,13 +225,22 @@ BuildRootfs() {
    mkdir tmp_mnt
    sudo mount -o loop arm_ramdisk.image tmp_mnt/
 
+   if [[ -d $workDir/code/rootfs/var/www ]]; then
+      sudo rm -rf tmp_mnt/var/www
+   fi
+
    sudo cp $workDir/code/rootfs/etc tmp_mnt/ -rf
+   sudo cp $workDir/code/rootfs/var tmp_mnt/ -rf
 
    if [[ appCnt > 0 ]]; then
       for((i=0; i<appCnt; i=i+2))
       do
          appName=${apps[i]##*/}
-         sudo cp $workDir/project/$projectName/bin/$appName tmp_mnt/usr/sbin/
+         if [[ $appName = server ]]; then
+            sudo cp $workDir/project/$projectName/bin/$appName.cgi tmp_mnt/var/www/cgi-bin/
+         else
+            sudo cp $workDir/project/$projectName/bin/$appName tmp_mnt/usr/sbin/
+         fi
       done
    fi
 
@@ -234,6 +251,8 @@ BuildRootfs() {
          sudo cp $workDir/project/$projectName/bin/$drvName.ko tmp_mnt/lib/modules
       done
    fi
+
+   sudo cp $workDir/project/$projectName/bin/boa tmp_mnt/usr/sbin/
 
    sudo umount tmp_mnt/
    gzip arm_ramdisk.image
