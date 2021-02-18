@@ -146,7 +146,10 @@ BuildUboot() {
 BuildKernel() {
    cd $workDir
    cd .depend/linux-Digilent-Dev
-   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- xilinx_zynq_defconfig uImage LOADADDR=0x00008000
+
+   sudo cp $workDir/code/linux/arch ./ -rf
+
+   make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- qynq_defconfig uImage LOADADDR=0x00008000
    make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi-
 
    cp arch/arm/boot/uImage ../../project/$projectName/bin

@@ -94,10 +94,20 @@
 &gem0 {
    status = "okay";
    phy-mode = "rgmii-id";
-   phy-handle = <&ethernet_phy>;
+   xlnx,ptp-enet-clock = <0x6750918>;
+   phy-handle = <0x4>;
 
-   ethernet_phy: ethernet-phy@0 {
-      reg = <0>;
+   mdio {
+      #address-cells = <0x1>;
+      #size-cells = <0x0>;
+
+      phy@1 {
+         compatible = "realtek,RTL8211E";
+         device_type = "ethernet-phy";
+         reg = <0x1>;
+         linux,phandle = <0x4>;
+         phandle = <0x4>;
+      };
    };
 };
 
