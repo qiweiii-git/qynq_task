@@ -26,6 +26,7 @@ unsigned int m_VdmaBaseAddress;
 int VdmaInit(unsigned int baseAddress);
 void VdmaCfgWrite(u8 dest, u32 startAddress, u32 width, u32 height);
 void VdmaCfgRead(u8 dest, u32 startAddress, u32 width, u32 height);
-void VdmaRcv();
+void VdmaWrRcv();
+void VdmaRdRcv();
 
 #endif

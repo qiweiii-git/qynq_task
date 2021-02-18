@@ -12,7 +12,7 @@
 //*****************************************************************************
 // Functions
 //*****************************************************************************
-int BmpRead(char *fileName, u32 memAddress)
+int BmpRead(char *fileName, void *memAddress)
 {
    int           fd;
    int           ret;
@@ -61,11 +61,29 @@ int BmpRead(char *fileName, u32 memAddress)
       index -= bmpWidth * 3;
    }
 
+   // Swap RGB
+   unsigned char rData;
+   unsigned char bData;
+   unsigned char gData;
+
+   for(x = 0; x < bmpWidth * bmpHeight * 3; x = x + 3)
+   {
+      bData = frameBuf[x + 2];
+      rData = frameBuf[x + 1];
+      gData = frameBuf[x + 0];
+
+      frameBuf[x + 0] = gData;
+      frameBuf[x + 1] = bData;
+      frameBuf[x + 2] = rData;
+   }
+
    close(fd);
 
-   memcpy((void *)memAddress, (const void *)frameBuf, 1920*1080*3);
+   printf("%s:Writing data into 0x%x. \r\n", __func__, (u32)memAddress);
 
-   printf("%s:Done%x\r\n", __func__);
+   memcpy(memAddress, (const void *)frameBuf, BMP_HEIGHT*BMP_WIDTH);
+
+   printf("%s:Done! \r\n", __func__);
 
    return 0;
 }

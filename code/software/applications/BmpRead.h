@@ -29,6 +29,6 @@ u8 frameBuf[1920*1080*3] __attribute__ ((aligned(64)));
 //*****************************************************************************
 // Functions
 //*****************************************************************************
-int BmpRead(char *fileName, u32 memAddress);
+int BmpRead(char *fileName, void *memAddress);
 
 #endif

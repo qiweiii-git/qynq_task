@@ -84,6 +84,12 @@ wire [31:0] reg_led_ctrl;
 wire [31:0] reg_fmt_def;
 wire [31:0] reg_cam_config_en;
 wire [31:0] reg_cam_config_da;
+wire [31:0] cam_pclk_cnt;
+wire [31:0] clk_74p25m_cnt;
+wire [31:0] axisi_debug_cnt;
+wire [31:0] axiso_debug_cnt;
+wire [31:0] axis_bmp_sel;
+wire [31:0] cam_status;
 wire [31:0] NULL0, NULL1, NULL2, NULL3, NULL4, NULL5;
 
 //*****************************************************************************
@@ -97,11 +103,6 @@ wire        clk_74p25m_fb;
 wire        clk_371p25m;
 wire        clk_371p25m_bufg;
 wire        vid_mmcm_locked;
-wire [31:0] cam_status;
-
-wire [31:0] clk_74p25m_cnt;
-wire [31:0] axisi_debug_cnt;
-wire [31:0] axiso_debug_cnt;
 
 //*****************************************************************************
 // Ifs
@@ -292,6 +293,7 @@ u_qwiregctrl
    .reg_rdd                ( reg_ctrl_dout ),
 
    .reg_out                ( {
+                              { axis_bmp_sel },
                               { NULL4 },
                               { NULL3 },
                               { NULL2 },
@@ -303,8 +305,9 @@ u_qwiregctrl
                               { reg_led_ctrl },
                               { reg_fw_ver }} ),
    .reg_in                 ( {
+                              { axis_bmp_sel },
                               { axiso_debug_cnt },
-                              { axisi_debug_cnt },
+                              { {31'h0, axis_o.tready} },
                               { clk_74p25m_cnt },
                               { cam_pclk_cnt },
                               { cam_status },

@@ -19,15 +19,17 @@
 //*****************************************************************************
 // Reg define
 //*****************************************************************************
-#define REG_FW_VER            0x0
-#define REG_LED_CTRL          0x1
-#define REG_FMT_DEF           0x2
-#define REG_CAM_CONFIG_EN     0x3
-#define REG_CAM_CONFIG_DATA   0x4
-#define REG_CAM_CONFIG_STATUS 0x5
-#define REG_CAM_PCLK_FREQ     0x6
-#define REG_CLK_74P25_FREQ    0x7
-#define REG_AXIS_DEBUG        0x8
+#define REG_FW_VER            0x00
+#define REG_LED_CTRL          0x10
+#define REG_FMT_DEF           0x20
+#define REG_CAM_CONFIG_EN     0x30
+#define REG_CAM_CONFIG_DATA   0x40
+#define REG_CAM_CONFIG_STATUS 0x50
+#define REG_CAM_PCLK_FREQ     0x60
+#define REG_CLK_74P25_FREQ    0x70
+#define REG_AXISI_DEBUG       0x80
+#define REG_AXISO_DEBUG       0x90
+#define REG_BMP_SEL           0xA0
 
 //*****************************************************************************
 // Defines
@@ -40,6 +42,10 @@
 #define false 1
 #define true 0
 
-#define REGCTRL_BASEADDR 0x40000000
+#define REGCTRL_BASEADDR 0x41000000
+#define VDMA0_BASEADDR   0x41100000
+
+#define BMP_WIDTH  1280*3
+#define BMP_HEIGHT 720
 
 #endif

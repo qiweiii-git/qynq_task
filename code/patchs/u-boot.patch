@@ -102,7 +102,7 @@ diff -urN u-boot-xlnx/arch/arm/mach-zynq/Kconfig u-boot-xlnx_new/arch/arm/mach-z
 diff -urN u-boot-xlnx/configs/qynq_defconfig u-boot-xlnx_new/configs/qynq_defconfig
 --- u-boot-xlnx/configs/qynq_defconfig	1969-12-31 16:00:00.000000000 -0800
 +++ u-boot-xlnx_new/configs/qynq_defconfig	2020-11-22 03:48:06.000000000 -0800
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,17 @@
 +CONFIG_ARM=y
 +CONFIG_ARCH_ZYNQ=y
 +CONFIG_TARGET_QYNQ=y
@@ -118,6 +118,8 @@ diff -urN u-boot-xlnx/configs/qynq_defconfig u-boot-xlnx_new/configs/qynq_defcon
 +CONFIG_OF_EMBED=y
 +CONFIG_SPI_FLASH=y
 +CONFIG_SPI_FLASH_BAR=y
++CONFIG_ZYNQ_GEM=y
++CONFIG_NET_RANDOM_ETHADDR=y
 diff -urN u-boot-xlnx/include/configs/qynq.h u-boot-xlnx_new/include/configs/qynq.h
 --- u-boot-xlnx/include/configs/qynq.h	1969-12-31 16:00:00.000000000 -0800
 +++ u-boot-xlnx_new/include/configs/qynq.h	2020-11-22 04:19:24.000000000 -0800

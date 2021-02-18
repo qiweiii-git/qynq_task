@@ -64,7 +64,7 @@ void VdmaCfgRead(u8 dest, u32 startAddress, u32 width, u32 height)
    printf("%s Done.\r\n", __func__);
 }
 
-void VdmaRcv()
+void VdmaWrRcv()
 {
    unsigned int regValue;
 
@@ -77,6 +77,24 @@ void VdmaRcv()
       usleep(1000000);
       // Enable run, Circular_Park, GenlockEn, GenlockSrc, RepeatEn
       Xil_Out32(m_VdmaBaseAddress + 0x30, 0x808B);
+
+      printf("%s due to 0x%x!\r\n", __func__, regValue);
+   }
+}
+
+void VdmaRdRcv()
+{
+   unsigned int regValue;
+
+   regValue = Xil_In32(m_VdmaBaseAddress + 0x04);
+
+   if(regValue & 0x1)
+   {
+      // Reset
+      Xil_Out32(m_VdmaBaseAddress + 0x00, 0x04);
+      usleep(1000000);
+      // Enable run, Circular_Park, GenlockEn, GenlockSrc, RepeatEn
+      Xil_Out32(m_VdmaBaseAddress + 0x00, 0x8B);
 
       printf("%s due to 0x%x!\r\n", __func__, regValue);
    }

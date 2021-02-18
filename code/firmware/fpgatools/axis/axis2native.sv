@@ -29,7 +29,6 @@ module axis2native
 // Signals
 //*****************************************************************************
 reg                 vtg_gen;
-reg                 aligned;
 reg                 wait_sync = 1;
 wire                vtg_sof;
 wire [BUF_AWID-1:0] wrlevel;
@@ -40,7 +39,6 @@ wire                fifo_tlast;
 wire                fifo_tuser;
 reg                 vblank_r;
 reg                 hblank_r;
-reg  [2:0]          init_cnt;
 
 //*****************************************************************************
 // Processes
@@ -59,7 +57,7 @@ generate
 endgenerate
 
 // Buffer read
-assign rden = |rdlevel && (((vtg_i.active || !vtg_gen) && aligned) || wait_sync);
+assign rden = |rdlevel && vtg_i.active && (!wait_sync || vtg_sof);
 
 always @(posedge natv_clk)
 begin
@@ -78,26 +76,17 @@ generate
          vtg_gen <= 1'b1;
 
          if(rst)
-            wait_sync <= 1'b1;
-         else if(fifo_tuser && rden && init_cnt >= 6)
             wait_sync <= 1'b0;
-
-         if(rst)
-            init_cnt <= 0;
+         else if(vtg_sof)
+            wait_sync <= 1'b0;
          else if(fifo_tuser && rden)
-            init_cnt <= init_cnt + ~init_cnt;
-
-         if(wait_sync)
-            aligned <= 1'b0;
-         else if(!wait_sync && vtg_sof)
-            aligned <= 1'b1;
+            wait_sync <= 1'b1;
       end
    end
    else
    begin
       always @(posedge natv_clk)
       begin
-         aligned <= 1'b1;
          wait_sync <= 1'b0;
          if(fifo_tuser)
             vtg_gen <= 1'b1;
@@ -112,7 +101,7 @@ begin
    natv_o.data   <= fifo_tdata;
    natv_o.hsync  <= vtg_i.hsync;
    natv_o.vsync  <= vtg_i.vsync;
-   natv_o.active <= rden;
+   natv_o.active <= vtg_i.active;
    natv_o.hblank <= vtg_i.hblank;
    natv_o.vblank <= vtg_i.vblank;
    natv_o.fid    <= vtg_i.fid;

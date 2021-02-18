@@ -13,7 +13,7 @@
 #*****************************************************************************
 projectName='qynq07_sdp2hdmi'
 
-if [ ! $1 -eq '' ]; then
+if [[ ! $1 -eq '' ]]; then
    projectName=$1
 fi
 
@@ -187,7 +187,6 @@ BuildDrv() {
    cd $workDir
 }
 
-
 #*****************************************************************************
 # Build softwares
 #*****************************************************************************
@@ -195,7 +194,7 @@ BuildSw() {
    appDir=$1
    makeDir=$2
    cd .build/$makeDir
-   arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -o $appDir \
+   arm-xilinx-linux-gnueabi-gcc -lpthread -I../utils -I../applications -o $appDir \
       $appDir.c ../utils/*.c ../applications/*.c
    cp $appDir $workDir/project/$projectName/bin
    cd $workDir

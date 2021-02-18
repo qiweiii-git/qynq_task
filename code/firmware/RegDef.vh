@@ -1,9 +1,16 @@
 //*****************************************************************************
+//    # #              Name   : RegDef.vh
+//  #     #            Date   : Dec. 25, 2020
+// #    #  #  #     #  Author : Qiwei Wu
+//  #     #  # #  # #  Version: 1.1
+//    # #  #    #   #
+//
 // RegDef.vh.
 //
 // Change History:
 //  VER.   Author         DATE              Change Description
 //  1.0    Qiwei Wu       Dec. 25, 2020     Initial Release
+//  1.1    Qiwei Wu       Feb. 18, 2021     Add AXIS_BMP_SEL
 //*****************************************************************************
 
 //*****************************************************************************
@@ -17,9 +24,10 @@ localparam FW_VER         = 0,
            CAM_STATUS     = 5,
            CAM_PCLK_CNT   = 6,
            CLK_74P25M_CNT = 7,
-           AXISI_DEBUG_CNT = 8,
-           AXISO_DEBUG_CNT = 9,
-           REG_CNT        = 10;
+           AXISI_DEBUG_CNT= 8,
+           AXISO_DEBUG_CNT= 9,
+           AXIS_BMP_SEL   = 10,
+           REG_CNT        = 11;
 
 //*****************************************************************************
 // reg initialized value
