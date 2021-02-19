@@ -36,6 +36,7 @@ static void *regCtrlAddr;
 static void *vdmaCtrlAddr;
 static void *frameBuf0Addr;
 static void *frameBuf1Addr;
+static void *frameBuf2Addr;
 u32         m_BmpSel = 0;
 
 //*****************************************************************************
@@ -89,8 +90,16 @@ void *SysMaintain(void *arg)
       rData = regRead((u32)regCtrlAddr + REG_BMP_SEL);
       if(rData != m_BmpSel)
       {
-         printf("%s:Swap BMP initialize Picture. \r\n", __func__);
-         if(rData & 0x1)
+         printf("%s:Swap BMP Picture. \r\n", __func__);
+         if(rData & 0x2)
+         {
+            BmpRead("/mnt/user_bmp.bmp", frameBuf2Addr);
+            VdmaCfgRead(0, (u32)0x10C00000, BMP_WIDTH, BMP_HEIGHT);
+            VdmaCfgRead(1, (u32)0x10C00000, BMP_WIDTH, BMP_HEIGHT);
+            VdmaCfgRead(2, (u32)0x10C00000, BMP_WIDTH, BMP_HEIGHT);
+            VdmaCfgRead(3, (u32)0x10C00000, BMP_WIDTH, BMP_HEIGHT);
+         }
+         else if(rData & 0x1)
          {
             VdmaCfgRead(0, (u32)0x10600000, BMP_WIDTH, BMP_HEIGHT);
             VdmaCfgRead(1, (u32)0x10600000, BMP_WIDTH, BMP_HEIGHT);
@@ -144,6 +153,7 @@ int main()
    // could not map to 0x0
    frameBuf0Addr = xil_MMap(0x10000000, 0x600000); // 1920x1080x3 = 0x600000
    frameBuf1Addr = xil_MMap(0x10600000, 0x600000); // 1920x1080x3 = 0x600000
+   frameBuf2Addr = xil_MMap(0x10C00000, 0x600000); // 1920x1080x3 = 0x600000
 
    // Get the FW version
    regValue = regRead((u32)regCtrlAddr + REG_FW_VER);

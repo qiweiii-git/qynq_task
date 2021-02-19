@@ -47,7 +47,7 @@ int main(int argc, char **argv)
       exit(1);
    }
 
-   m_MapAddress = mmap(0, 0x00100000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (__off_t)REGCTRL_BASEADDR);
+   m_MapAddress = mmap(0, 0x2000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (__off_t)REGCTRL_BASEADDR);
 
    if(m_MapAddress == (void *) -1)
    {
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
       regWrite((u32)m_MapAddress + address * 0x10, wData);
       printf("Writing 0x%x to 0x%x\n", wData, address);
    }
-   munmap(m_MapAddress, 0x00100000);
+   munmap(m_MapAddress, 0x2000);
 
    return 0;
 }

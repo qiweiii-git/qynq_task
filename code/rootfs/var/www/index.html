@@ -25,6 +25,16 @@
    <input type="submit" name="toggleLED" value="toggle LED"/>
 </form>
 
+<h2> Upload BMP picture for HDMI shows </h2>
+<form action="cgi-bin/upload.cgi" method=POST enctype="multipart/form-data" target="_blank">
+   <input type="file" name="file" value=""/>
+   <input type="submit" name="uploadFile" value="Upload"/>
+</form>
+
+<form action="cgi-bin/server.cgi" method=POST target="server">
+   <input type="submit" name="swapBmp" value="Swap BMP"/>
+</form>
+
 <h2> External Links </h2>
 <p>
 <ul>

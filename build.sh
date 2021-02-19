@@ -200,9 +200,15 @@ BuildSw() {
 
    if [[ $appDir = *cgi* ]]; then
       # build CGI
-      arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -o $appDir.cgi \
-         $appDir.c ../utils/*.c ../applications/*.c
-      cp $appDir.cgi $workDir/project/$projectName/bin
+      if [[ $appDir = *upload* ]]; then
+         arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -I../cgic -o $appDir.cgi \
+            $appDir.c ../utils/*.c ../applications/*.c ../cgic/*.c
+         cp $appDir.cgi $workDir/project/$projectName/bin
+      else
+         arm-xilinx-linux-gnueabi-gcc -I../utils -I../applications -o $appDir.cgi \
+            $appDir.c ../utils/*.c ../applications/*.c
+         cp $appDir.cgi $workDir/project/$projectName/bin
+      fi
    else
       arm-xilinx-linux-gnueabi-gcc -lpthread -I../utils -I../applications -o $appDir \
          $appDir.c ../utils/*.c ../applications/*.c
@@ -237,6 +243,8 @@ BuildRootfs() {
       do
          appName=${apps[i]##*/}
          if [[ $appName = server ]]; then
+            sudo cp $workDir/project/$projectName/bin/$appName.cgi tmp_mnt/var/www/cgi-bin/
+         elif [[ $appName = upload ]]; then
             sudo cp $workDir/project/$projectName/bin/$appName.cgi tmp_mnt/var/www/cgi-bin/
          else
             sudo cp $workDir/project/$projectName/bin/$appName tmp_mnt/usr/sbin/
