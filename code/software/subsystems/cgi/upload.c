@@ -62,10 +62,11 @@ int cgiMain(void)
    cgiFormFileContentType("file", contentType, sizeof(contentType));
 
    // 打开文件
-    if (cgiFormFileOpen("file", &file) != cgiFormSuccess) {
-        printf("could not open the file. \r\n");
-        goto FAIL;
-    }
+   if (cgiFormFileOpen("file", &file) != cgiFormSuccess)
+   {
+      printf("could not open the file. \r\n");
+      goto FAIL;
+   }
 
    // 判断文件是否是BMP图片
    if(strstr(name, ".bmp"))

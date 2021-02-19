@@ -22,6 +22,7 @@ echo "starting regctrl"
 insmod /lib/modules/RegDrv.ko
 mknod /dev/regctrl c 232 0
 chmod 777 /var/www/cgi-bin/server.cgi
+chmod 777 /var/www/cgi-bin/upload.cgi
 chmod 777 /usr/sbin/boa
 chmod 777 /usr/sbin/regrw
 chmod 777 /usr/sbin/qynq07_sdp2hdmi
