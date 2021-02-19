@@ -66,21 +66,22 @@ int init()
 void *SysMaintain(void *arg)
 {
    u32 rData;
-   u32 ledOn = 0xF;
+   u32 ledOn;
 
    while(1)
    {
       // 500 milisecond thread
       usleep(500000);
 
-      // Led
+      // Swap NO.1 Led status
+      ledOn = regRead((u32)regCtrlAddr + REG_LED_CTRL);
       if(ledOn & 0x1)
       {
-         ledOn = 0xE;
+         ledOn &= 0xE;
       }
       else
       {
-         ledOn = 0xF;
+         ledOn |= 0x1;
       }
       regWrite((u32)regCtrlAddr + REG_LED_CTRL, ledOn);
 
