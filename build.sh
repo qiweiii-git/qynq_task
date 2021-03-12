@@ -17,6 +17,11 @@ if [[ ! $1 -eq '' ]]; then
    projectName=$1
 fi
 
+teamcityBuild=0
+if [[ $2 -eq 'teamcity' ]]; then
+   teamcityBuild=1
+fi
+
 source ./depends.sh
 source ./project/$projectName/config.sh
 
@@ -406,8 +411,36 @@ BuildKernel2020() {
 }
 
 #*****************************************************************************
+# Teamcity Prepare
+#*****************************************************************************
+TeamcityPre() {
+   cd $workDir
+   sudo rm -rf .bin
+   mkdir .bin
+   mkdir .tcb
+   cp -ra ./* .tcb
+   cd .tcb
+   workDir=$(pwd)
+   sudo rm -rf $workDir/project/$projectName/bin
+}
+
+#*****************************************************************************
+# Teamcity Post
+#*****************************************************************************
+TeamcityPost() {
+   cp $workDir/project/$projectName/bin/* $workDir/../.bin
+   cd ../
+   workDir=$(pwd)
+   rm -rf .tcb
+}
+
+#*****************************************************************************
 # Main
 #*****************************************************************************
+if [[ teamcityBuild == 1 ]]; then
+   TeamcityPre
+fi
+
 if [ ! -d $workDir/project/$projectName/bin ]; then
    mkdir $workDir/project/$projectName/bin
    echo "Info: /Bin created"
@@ -465,6 +498,10 @@ fi
 if [[ $buildPetaLinux -eq 1 ]]; then
    MkdirBuild
    BuildPetaLinux
+fi
+
+if [[ teamcityBuild == 1 ]]; then
+   TeamcityPost
 fi
 
 echo "Info: All builds got"
