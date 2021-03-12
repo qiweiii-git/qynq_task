@@ -17,8 +17,8 @@ if [[ ! $1 -eq '' ]]; then
    projectName=$1
 fi
 
-sh depends.sh
-sh ./project/$projectName/config.sh
+source ./depends.sh
+source ./project/$projectName/config.sh
 
 dependCnt=${#depends[*]}
 patchsCnt=${#patchs[*]}
