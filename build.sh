@@ -422,6 +422,7 @@ TeamcityPre() {
    mkdir .bin
    mkdir .tcb
    cp -ra ./* .tcb
+   cp -ra ./.depend .tcb
    cd .tcb
    workDir=$(pwd)
    sudo rm -rf $workDir/project/$projectName/bin
