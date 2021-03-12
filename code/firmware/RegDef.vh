@@ -34,6 +34,6 @@ localparam FW_VER         = 0,
 //*****************************************************************************
 wire [31:0] REG_INIT[0:REG_CNT-1];
 
-assign REG_INIT[FW_VER]  = 32'h0006_0001;
+assign REG_INIT[FW_VER]  = 32'h0006_1001;
 assign REG_INIT[LED_CTRL] = 32'h0000_000F;
 assign REG_INIT[FMT_DEF] = 32'h0000_0001;
