@@ -20,6 +20,7 @@ fi
 teamcityBuild=0
 if [[ $2 -eq 'teamcity' ]]; then
    teamcityBuild=1
+   echo "Info: Build from Teamcity!"
 fi
 
 source ./depends.sh
@@ -430,7 +431,7 @@ TeamcityPre() {
 # Teamcity Push
 #*****************************************************************************
 TeamcityPushResult() {
-   cp $workDir/project/$projectName/bin/* $workDir/../.bin
+   cp $workDir/project/$projectName/bin/* $workDir/../.bin -f
 }
 
 #*****************************************************************************
@@ -445,7 +446,7 @@ TeamcityPost() {
 #*****************************************************************************
 # Main
 #*****************************************************************************
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPre
 fi
 
@@ -482,7 +483,7 @@ if [[ $buildKernel -eq 1 ]]; then
    BuildRootfs
 fi
 
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult
 fi
 
@@ -491,7 +492,7 @@ if [[ $buildFw -eq 1 ]]; then
    BuildFw
 fi
 
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult
 fi
 
@@ -511,7 +512,7 @@ if [[ $buildBootBin -eq 1 ]]; then
    BuildBootBin
 fi
 
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult
 fi
 
@@ -520,11 +521,11 @@ if [[ $buildPetaLinux -eq 1 ]]; then
    BuildPetaLinux
 fi
 
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult
 fi
 
-if [[ teamcityBuild == 1 ]]; then
+if [[ $teamcityBuild == 1 ]]; then
    TeamcityPost
 fi
 
