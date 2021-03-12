@@ -358,6 +358,7 @@ u_axis2native
 // HDMI OUT
 //*****************************************************************************
 assign HDMI_OEN = 1'b1;
+
 rgb2dvi u_rbg2dvi
 (
    .PixelClk               ( clk_74p25m_bufg ),
