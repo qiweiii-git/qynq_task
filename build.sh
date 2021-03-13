@@ -340,10 +340,10 @@ GetOrBuildFw() {
 GetFwFromLocal() {
    cd $workDir
    rptFile=$projectName\_rpt
-   cp $workDir/../project/$projectName/bin/boa                 $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/../.bin -f
+   cp $workDir/../project/$projectName/bin/boa                 $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/project/$projectName/bin/ -f
    cd $workDir
 }
 
@@ -397,7 +397,7 @@ BuildBootBin() {
 
    sleep 10
    # Build BOOT.BIN
-   cd .build/project/$projectName/bin
+   cd $workDir/project/$projectName/bin
 
    echo "the_ROM_image:"                           >> image.bif
    echo "{"                                        >> image.bif
@@ -542,10 +542,12 @@ PushUpgradeFile() {
             cp $workDir/project/$projectName/bin/${upgradeFiles[i+1]} ./ -f
          fi
 
-      if [[ $i == 0 ]]; then
-         tar -cvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
-      else
-         tar -rvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         if [[ $i == 0 ]]; then
+            tar -cvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         else
+            tar -rvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         fi
+      done
    fi
    cd $workDir
 }
