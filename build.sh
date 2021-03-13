@@ -33,6 +33,7 @@ fi
 
 source ./depends.sh
 source ./project/$projectName/config.sh
+source ./project/$projectName/UpgradeConfig.sh
 
 dependCnt=${#depends[*]}
 patchsCnt=${#patchs[*]}
