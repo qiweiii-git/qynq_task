@@ -416,7 +416,7 @@ BuildBootBin() {
    else
       xsdk -batch -source RunBoot.tcl
    fi
-   cp BOOT.BIN $workDir/project/$projectName/bin
+   cp BOOT.BIN $workDir/project/$projectName/bin -f
 
    cd $workDir
 }
