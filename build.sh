@@ -13,18 +13,18 @@
 #*****************************************************************************
 projectName='qynq07_sdp2hdmi'
 
-if [[ ! $1 -eq '' ]]; then
+if [[ -n "$1" ]]; then
    projectName=$1
 fi
 
 teamcityBuild=0
-if [[ $2 -eq 'teamcity' ]]; then
+if [[ -n "$2" ]]; then
    teamcityBuild=1
    echo "Info: Build from Teamcity!"
 fi
 
 teamcityBuildId=0
-if [[ ! $3 -eq '' ]]; then
+if [[ -n "$3" ]]; then
    teamcityBuildId=$3
    echo "Info: Now teamcity build ID is $teamcityBuildId!"
    let "teamcityBuildId=$teamcityBuildId-1"
