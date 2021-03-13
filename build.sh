@@ -542,10 +542,12 @@ PushUpgradeFile() {
             cp $workDir/project/$projectName/bin/${upgradeFiles[i+1]} ./ -f
          fi
 
-      if [[ $i == 0 ]]; then
-         tar -cvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
-      else
-         tar -rvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         if [[ $i == 0 ]]; then
+            tar -cvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         else
+            tar -rvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+         fi
+      done
    fi
    cd $workDir
 }
