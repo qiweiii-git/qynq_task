@@ -23,6 +23,14 @@ if [[ $2 -eq 'teamcity' ]]; then
    echo "Info: Build from Teamcity!"
 fi
 
+teamcityBuildId=0
+if [[ ! $3 -eq '' ]]; then
+   teamcityBuildId=$3
+   echo "Info: Now teamcity build ID is $teamcityBuildId!"
+   let "teamcityBuildId=$teamcityBuildId-1"
+   echo "Info: Last teamcity build ID is $teamcityBuildId!"
+fi
+
 source ./depends.sh
 source ./project/$projectName/config.sh
 
@@ -31,6 +39,7 @@ patchsCnt=${#patchs[*]}
 appCnt=${#apps[*]}
 drvCnt=${#drvs[*]}
 
+workDir=$(pwd)
 #*****************************************************************************
 # Set environment
 #*****************************************************************************
@@ -46,45 +55,45 @@ fi
 #*****************************************************************************
 # Get depends
 #*****************************************************************************
-workDir=$(pwd)
+GetDepends() {
+   if [ ! -d .depend ]; then
+      mkdir .depend
+      echo "Info: .depend created"
 
-if [ ! -d .depend ]; then
-   mkdir .depend
-   echo "Info: .depend created"
-
-   if [[ dependCnt > 0 ]]; then
-      cd .depend
-      for((i=0; i<dependCnt; i=i+2))
-      do
-         if [ ! -d ${depends[i]} ]; then
-            if [[ -d /tools/Xilinx/source/${depends[i]} ]]; then
-               echo "Getting ${depends[i]} from local"
-               cp -ra /tools/Xilinx/source/${depends[i]} ./
-            else
-               echo "Getting ${depends[i]} from URL"
-               ${depends[i+1]}
+      if [[ dependCnt > 0 ]]; then
+         cd .depend
+         for((i=0; i<dependCnt; i=i+2))
+         do
+            if [ ! -d ${depends[i]} ]; then
+               if [[ -d /tools/Xilinx/source/${depends[i]} ]]; then
+                  echo "Getting ${depends[i]} from local"
+                  cp -ra /tools/Xilinx/source/${depends[i]} ./
+               else
+                  echo "Getting ${depends[i]} from URL"
+                  ${depends[i+1]}
+               fi
             fi
-         fi
-      done
-      cd $workDir
-      echo "Info: All depends got"
-   fi
+         done
+         cd $workDir
+         echo "Info: All depends got"
+      fi
 
-   if [[ patchsCnt > 0 ]]; then
-      cd .depend
-      dependDir=$(pwd)
-      for((i=0; i<patchsCnt; i=i+2))
-      do
-         cd $dependDir
-         cd ${patchs[i]}
-         echo "Applying patch ${patchs[i+1]}"
-         patch -p1 < $workDir/code/patchs/${patchs[i+1]}
-      done
-      #sudo chmod 0755 -R ./
-      cd $workDir
-      echo "Info: All patchs applied"
+      if [[ patchsCnt > 0 ]]; then
+         cd .depend
+         dependDir=$(pwd)
+         for((i=0; i<patchsCnt; i=i+2))
+         do
+            cd $dependDir
+            cd ${patchs[i]}
+            echo "Applying patch ${patchs[i+1]}"
+            patch -p1 < $workDir/code/patchs/${patchs[i+1]}
+         done
+         #sudo chmod 0755 -R ./
+         cd $workDir
+         echo "Info: All patchs applied"
+      fi
    fi
-fi
+}
 
 #*****************************************************************************
 # Copy files
@@ -279,11 +288,55 @@ BuildRootfs() {
 }
 
 #*****************************************************************************
+# Get or Build Firmware
+#*****************************************************************************
+GetOrBuildFw() {
+   getFw=1
+   verUrl="http://39.98.121.216:8111/repository/download/QynqTask_Build/$teamcityBuildId:id/.ver/ver.txt"
+
+   lastVer=$(wget -q -O - $verUrl | grep "firmware" | tr -d [:space:][:alpha:])
+   echo "lastVer is $lastVer"
+   thisVer=$(git log -n 1 code/firmware/ | head -n 1 | tr -d [:space:][:alpha:])
+   echo "thisVer is $thisVer"
+
+   if [[ ! $lastVer -eq $thisVer ]]; then
+      getFw=0
+   fi
+   echo "firmware $thisVer" >> $workDir/../.ver/ver.txt
+
+   lastVer=$(wget -q -O - $verUrl | grep "fwTop" | tr -d [:space:][:alpha:])
+   echo "lastVer is $lastVer"
+   thisVer=$(git log -n 1 project/$projectName/source | head -n 1 | tr -d [:space:][:alpha:])
+   echo "thisVer is $thisVer"
+
+   if [[ ! $lastVer -eq $thisVer ]]; then
+      getFw=0
+   fi
+   echo "fwTop $thisVer" >> $workDir/../.ver/ver.txt
+
+   if [[ $getFw == 1 ]]; then
+      echo "Get firmware!"
+      cd $workDir/project/$projectName/bin
+      fwUrl="http://39.98.121.216:8111/repository/download/QynqTask_Build/$teamcityBuildId:id/.bin/$projectName.bit"
+      wget $fwUrl
+      fwUrl="http://39.98.121.216:8111/repository/download/QynqTask_Build/$teamcityBuildId:id/.bin/$projectName.hdf"
+      wget $fwUrl
+      rptFile=$projectName\_rpt
+      fwUrl="http://39.98.121.216:8111/repository/download/QynqTask_Build/$teamcityBuildId:id/.bin/$rptFile.tar.gz"
+      wget $fwUrl
+      cd $workDir
+   else
+      echo "Build firmware!"
+      MkdirBuild
+      BuildFw
+   fi
+}
+
+#*****************************************************************************
 # Build firmware
 #*****************************************************************************
 BuildFw() {
    cd $workDir
-   mkdir -p .build/.depend/
    cp -f code/firmware/build/Run.tcl .build/project/$projectName
 
    cd .build/project/$projectName
@@ -420,9 +473,15 @@ TeamcityPre() {
    cd $workDir
    sudo rm -rf .bin
    mkdir .bin
+
+   if [[ ! -d .ver ]]; then
+      mkdir .ver
+      touch .ver/ver.txt
+   fi
+
    mkdir .tcb
    cp -ra ./* .tcb
-   cp -ra ./.depend .tcb
+   cp -ra ./.git .tcb
    cd .tcb
    workDir=$(pwd)
    sudo rm -rf $workDir/project/$projectName/bin
@@ -451,9 +510,24 @@ if [[ $teamcityBuild == 1 ]]; then
    TeamcityPre
 fi
 
+GetDepends
+
 if [ ! -d $workDir/project/$projectName/bin ]; then
    mkdir $workDir/project/$projectName/bin
    echo "Info: /Bin created"
+fi
+
+if [[ $buildFw -eq 1 ]]; then
+   if [[ $teamcityBuild == 1 ]]; then
+      GetOrBuildFw
+   else
+      MkdirBuild
+      BuildFw
+   fi
+fi
+
+if [[ $teamcityBuild == 1 ]]; then
+   TeamcityPushResult
 fi
 
 if [[ $buildKernel -eq 1 ]]; then
@@ -482,15 +556,6 @@ if [[ $buildKernel -eq 1 ]]; then
    fi
 
    BuildRootfs
-fi
-
-if [[ $teamcityBuild == 1 ]]; then
-   TeamcityPushResult
-fi
-
-if [[ $buildFw -eq 1 ]]; then
-   MkdirBuild
-   BuildFw
 fi
 
 if [[ $teamcityBuild == 1 ]]; then
