@@ -73,6 +73,11 @@ int cgiMain(void)
    {
       strcpy(fileNameOnServer, "/mnt/user_bmp.bmp");
    }
+   // 判断是否是升级文件
+   if(strstr(name, "upgrade.tar.gz"))
+   {
+      strcpy(fileNameOnServer, "/tmp/upgrade.tar.gz");
+   }
    else
    {
       goto FAIL;

@@ -35,6 +35,16 @@
    <input type="submit" name="swapBmp" value="Swap BMP"/>
 </form>
 
+<h2> Upload new software </h2>
+<form action="cgi-bin/upload.cgi" method=POST enctype="multipart/form-data" target="_blank">
+   <input type="file" name="file" value=""/>
+   <input type="submit" name="uploadFile" value="Upload"/>
+</form>
+
+<form action="/etc/init.d/postUpdate.sh" method=POST target="server">
+   <input type="submit" name="updateSw" value="Update"/>
+</form>
+
 <h2> External Links </h2>
 <p>
 <ul>
