@@ -76,7 +76,7 @@ int cgiMain(void)
    // 判断是否是升级文件
    if(strstr(name, "upgrade.tar.gz"))
    {
-      strcpy(fileNameOnServer, "/tmp/upgrade.tar.gz");
+      strcpy(fileNameOnServer, "/tmp/upgrade");
    }
    else
    {

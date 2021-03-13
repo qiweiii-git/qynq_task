@@ -8,5 +8,4 @@ upgradeFiles=('boot.bin' 'BOOT.BIN'
               'rootfs' 'uramdisk.image.gz' 
               'kernel' 'uImage' 
               'userFile' 'init.bmp' 
-              'userFile' 'init_next.bmp'
-              'userFile' 'user_bmp0.bmp')
+              'userFile' 'init_next.bmp')
