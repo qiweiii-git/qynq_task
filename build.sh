@@ -393,11 +393,10 @@ BuildBootBin() {
    fi
 
    cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf $workDir/project/$projectName/bin
-   cd $workDir
 
    sleep 10
    # Build BOOT.BIN
-   cd $workDir/project/$projectName/bin
+   cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf ./ -f
 
    echo "the_ROM_image:"                           >> image.bif
    echo "{"                                        >> image.bif
