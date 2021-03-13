@@ -38,6 +38,7 @@ dependCnt=${#depends[*]}
 patchsCnt=${#patchs[*]}
 appCnt=${#apps[*]}
 drvCnt=${#drvs[*]}
+upgradeFileCnt=${#upgradeFiles[*]}
 
 workDir=$(pwd)
 #*****************************************************************************
@@ -249,6 +250,7 @@ BuildRootfs() {
    if [[ -d $workDir/code/rootfs/var/www ]]; then
       sudo rm -rf tmp_mnt/var/www
    fi
+   sudo mkdir -p $workDir/code/rootfs/var/www/cgi-bin
 
    sudo cp $workDir/code/rootfs/etc tmp_mnt/ -rf
    sudo cp $workDir/code/rootfs/var tmp_mnt/ -rf
@@ -330,6 +332,19 @@ GetOrBuildFw() {
       MkdirBuild
       BuildFw
    fi
+}
+
+#*****************************************************************************
+# Get Firmware from Local
+#*****************************************************************************
+GetFwFromLocal() {
+   cd $workDir
+   rptFile=$projectName\_rpt
+   cp $workDir/../project/$projectName/bin/boa                 $workDir/../.bin -f
+   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/../.bin -f
+   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/../.bin -f
+   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/../.bin -f
+   cd $workDir
 }
 
 #*****************************************************************************
@@ -504,6 +519,38 @@ TeamcityPost() {
 }
 
 #*****************************************************************************
+# Local building Post
+#*****************************************************************************
+LocalPost() {
+   sudo rm -rf .bin
+   mkdir .bin
+   rm -rf .build
+
+   cp $workDir/project/$projectName/bin/* $workDir/.bin -f
+}
+
+#*****************************************************************************
+# Local building Post
+#*****************************************************************************
+PushUpgradeFile() {
+   cd $workDir/.bin
+
+   if [[ upgradeFileCnt > 0 ]]; then
+      for((i=0; i<upgradeFileCnt; i=i+2))
+      do
+         if [[ ${upgradeFiles[i]} -eq 'userFile' ]]; then
+            cp $workDir/project/$projectName/bin/${upgradeFiles[i+1]} ./ -f
+         fi
+
+      if [[ $i == 0 ]]; then
+         tar -cvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+      else
+         tar -rvf $projectName\_upgrade.tar.gz ${upgradeFiles[i+1]}
+   fi
+   cd $workDir
+}
+
+#*****************************************************************************
 # Main
 #*****************************************************************************
 if [[ $teamcityBuild == 1 ]]; then
@@ -519,7 +566,9 @@ fi
 
 if [[ $buildFw -eq 1 ]]; then
    if [[ $teamcityBuild == 1 ]]; then
-      GetOrBuildFw
+      echo "We would not build Firmware in teamcity since we do not have enough memory!"
+      #GetOrBuildFw
+      GetFwFromLocal
    else
       MkdirBuild
       BuildFw
@@ -593,6 +642,10 @@ fi
 
 if [[ $teamcityBuild == 1 ]]; then
    TeamcityPost
+else
+   LocalPost
 fi
+
+PushUpgradeFile
 
 echo "Info: All builds got"
