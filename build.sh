@@ -27,8 +27,8 @@ teamcityBuildId=0
 if [[ -n "$3" ]]; then
    teamcityBuildId=$3
    echo "Info: Now teamcity build ID is $teamcityBuildId!"
-   let "teamcityBuildId=$teamcityBuildId-1"
-   echo "Info: Last teamcity build ID is $teamcityBuildId!"
+   #let "teamcityBuildId=$teamcityBuildId-1"
+   #echo "Info: Last teamcity build ID is $teamcityBuildId!"
 fi
 
 source ./depends.sh
@@ -550,6 +550,11 @@ PushUpgradeFile() {
          fi
       done
    fi
+
+   rm -rf $workDir/.upgrade
+   mkdir $workDir/.upgrade
+   mv $projectName\_upgrade.tar.gz $workDir/.upgrade/$projectName\_ver$teamcityBuildId\_upgrade.tar.gz
+
    cd $workDir
 }
 
