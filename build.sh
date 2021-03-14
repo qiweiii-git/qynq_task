@@ -26,6 +26,7 @@ fi
 teamcityBuildId=0
 if [[ -n "$3" ]]; then
    teamcityBuildId=$3
+   teamcityBuildId=${teamcityBuildId: 0 :6}
    echo "Info: Now teamcity build ID is $teamcityBuildId!"
    #let "teamcityBuildId=$teamcityBuildId-1"
    #echo "Info: Last teamcity build ID is $teamcityBuildId!"
