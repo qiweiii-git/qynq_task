@@ -1,0 +1,38 @@
+ include/configs/zynq-common.h | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/zynq-common.h b/include/configs/zynq-common.h
+index d8b22e2cf3..8f91c38e4a 100644
+--- a/include/configs/zynq-common.h
++++ b/include/configs/zynq-common.h
+@@ -262,9 +262,10 @@
+ 	"ramdisk_load_address=0x4000000\0"	\
+ 	"devicetree_image=devicetree.dtb\0"	\
+ 	"devicetree_load_address=0x2000000\0"	\
+-	"bitstream_image=system.bit.bin\0"	\
++	"bitstream_image=firmware.bit\0"	\
++	"bitsize=0x1000000" \
+ 	"boot_image=BOOT.bin\0"	\
+-	"loadbit_addr=0x100000\0"	\
++	"loadbit_addr=0x1000000\0"	\
+ 	"loadbootenv_addr=0x2000000\0" \
+ 	"kernel_size=0x500000\0"	\
+ 	"devicetree_size=0x20000\0"	\
+@@ -285,7 +286,7 @@
+ 	"mmc_loadbit=echo Loading bitstream from SD/MMC/eMMC to RAM.. && " \
+ 		"mmcinfo && " \
+ 		"load mmc 0 ${loadbit_addr} ${bitstream_image} && " \
+-		"fpga load 0 ${loadbit_addr} ${filesize}\0" \
++		"fpga loadb 0 ${loadbit_addr} ${bitsize}\0" \
+ 	"norboot=echo Copying Linux from NOR flash to RAM... && " \
+ 		"cp.b 0xE2100000 ${kernel_load_address} ${kernel_size} && " \
+ 		"cp.b 0xE2600000 ${devicetree_load_address} ${devicetree_size} && " \
+@@ -310,6 +311,8 @@
+ 		"fi\0" \
+ 	"sdboot=if mmcinfo; then " \
+ 			"run uenvboot; " \
++         "echo Copying Bitstream from SD to RAM... &&" \
++         "run mmc_loadbit; " \
+ 			"echo Copying Linux from SD to RAM... && " \
+ 			"load mmc 0 ${kernel_load_address} ${kernel_image} && " \
+ 			"load mmc 0 ${devicetree_load_address} ${devicetree_image} && " \

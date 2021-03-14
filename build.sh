@@ -343,6 +343,7 @@ GetFwFromLocal() {
    rptFile=$projectName\_rpt
    cp $workDir/../project/$projectName/bin/boa                 $workDir/project/$projectName/bin/ -f
    cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/firmware.bit -f
    cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/project/$projectName/bin/ -f
    cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/project/$projectName/bin/ -f
    cd $workDir
@@ -402,7 +403,7 @@ BuildBootBin() {
    echo "the_ROM_image:"                           >> image.bif
    echo "{"                                        >> image.bif
    echo "   [bootloader]./"$projectName"_fsbl.elf" >> image.bif
-   echo "   ./$projectName.bit"                    >> image.bif
+   #echo "   ./$projectName.bit"                    >> image.bif
    if [[ ! $elf -eq 'uboot' ]]; then
       echo "   ./"$elf"\_sw.elf"                   >> image.bif
    else

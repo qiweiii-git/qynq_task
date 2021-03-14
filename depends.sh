@@ -3,4 +3,5 @@
 depends=('u-boot-xlnx' 'git clone https://gitee.com/qiweiii-gitee/u-boot-xlnx.git' 
          'linux-Digilent-Dev' 'git clone https://gitee.com/qiweiii-gitee/linux-Digilent-Dev.git')
 
-patchs=( 'u-boot-xlnx' 'u-boot.patch' )
+patchs=( 'u-boot-xlnx' 'u-boot.patch'
+         'u-boot-xlnx' 'u-boot-loadFw.patch')
