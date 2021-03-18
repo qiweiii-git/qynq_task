@@ -554,7 +554,7 @@ PushUpgradeFile() {
 
    rm -rf $workDir/.upgrade
    mkdir $workDir/.upgrade
-   mv $projectName\_upgrade.tar.gz $workDir/.upgrade/$projectName\_ver$teamcityBuildId\_upgrade.tar.gz
+   mv $projectName\_upgrade.tar.gz $workDir/.upgrade/$projectName\_$teamcityBuildId\_upgrade.tar.gz
 
    cd $workDir
 }
