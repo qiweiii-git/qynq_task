@@ -111,8 +111,8 @@ wire [AWID-1:0] wr_ptr_rd;
 reg  [AWID-1:0] rd_ptr = 0;
 wire [AWID-1:0] rd_ptr_plus;
 wire [AWID-1:0] rd_ptr_wr;
-reg             wr_full;
-reg             rd_empty;
+wire            wr_full;
+wire            rd_empty;
 
 sync_clock #(
    .DWID ( 1 )
@@ -216,20 +216,70 @@ load #(
 
 endmodule
 
-/*
 // ****************************************************************************
 // ram.sv
 // ****************************************************************************
 module ram
 #(
-
+   parameter               DWID = 32,
+   parameter               AWID = 10
 )
 (
-
+   input                   RST,
+   input                   WRCLK,
+   input                   WRENA,
+   input      [AWID-1:0]   WRADR,
+   input      [DWID-1:0]   WRDAT,
+   input                   RDCLK,
+   input                   RDENA,
+   input      [AWID-1:0]   RDADR,
+   output reg [DWID-1:0]   RDDAT
 );
 
+reg  [DWID-1:0] mem [0:2**AWID-1];
+wire            wr_rst;
+wire            rd_rst;
+reg  [DWID-1:0] rddata_hold;
+
+sync_clock #(
+   .DWID ( 1 )
+) wr_rst_sync (
+   .CLK  ( WRCLK ),
+   .DI   ( RST ),
+   .DO   ( wr_rst )
+);
+
+sync_clock #(
+   .DWID ( 1 )
+) rd_rst_sync (
+   .CLK  ( RDCLK ),
+   .DI   ( RST ),
+   .DO   ( rd_rst )
+);
+
+// wr
+always @(posedge WRCLK)
+begin
+   if(WRENA && !wr_rst)
+      mem[WRADR] <= WRDAT;
+end
+
+// rd
+always @(RDCLK)
+begin
+   if(RDENA && !rd_rst)
+      rddata_hold <= mem[RDADR];
+end
+
+always @(*)
+begin
+   if(RDENA && !rd_rst)
+      RDDAT = mem[RDADR];
+   else
+      RDDAT = rddata_hold;
+end
+
 endmodule
-*/
 
 // ****************************************************************************
 // sync_clock.sv

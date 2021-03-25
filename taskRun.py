@@ -71,16 +71,27 @@ if __name__ == "__main__":
       else:
          os.makedirs( resPath + projectItems[i] )
          os.chdir( taskPath + projectItems[i] )
-         os.system( 'make' )
-         os.system( './top.sim > result.log' )
-         os.chdir( workPath )
+         os.system( 'make sim' )
          for path, dirs, files in os.walk( taskPath + projectItems[i], topdown = False ):
+            if not "result.log" in files:
+               print( "Task %s compile failed" % projectItems[i] )
+               sys.exit( -1 )
             for name in files:
-               if ".log" or ".res" in name:
+               if not "Makefile" in name:
                   fileSrcPath = os.path.join( path, name )
                   fileDestPath = os.path.join( resPath + projectItems[i], name )
                   shutil.copy( fileSrcPath, fileDestPath )
                   print( "Copping %s into %s" % ( name, resPath + projectItems[i] ) )
+                  if "result.log" in name:
+                     # check result
+                     logFile = open( fileDestPath, 'r' )
+                     for line in logFile.readlines():
+                        if 'Error' in line or 'ERROR' in line or 'error' in line:
+                           print( "Task %s appears error" % projectItems[i] )
+                           sys.exit( -1 )
+                     logFile.close()
+         os.system( 'make clean' )
+         os.chdir( workPath )
 
    # finish
    print( "Finish building Project %s" % ( options.projectName ) )
