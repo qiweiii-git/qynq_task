@@ -13,26 +13,28 @@
 #*****************************************************************************
 projectName='qynq07_sdp2hdmi'
 
-if [[ ! $1 -eq '' ]]; then
+if [[ -n "$1" ]]; then
    projectName=$1
 fi
 
 teamcityBuild=0
-if [[ $2 -eq 'teamcity' ]]; then
+if [[ -n "$2" ]]; then
    teamcityBuild=1
    echo "Info: Build from Teamcity!"
 fi
 
 teamcityBuildId=0
-if [[ ! $3 -eq '' ]]; then
+if [[ -n "$3" ]]; then
    teamcityBuildId=$3
+   teamcityBuildId=${teamcityBuildId: 0 :6}
    echo "Info: Now teamcity build ID is $teamcityBuildId!"
-   let "teamcityBuildId=$teamcityBuildId-1"
-   echo "Info: Last teamcity build ID is $teamcityBuildId!"
+   #let "teamcityBuildId=$teamcityBuildId-1"
+   #echo "Info: Last teamcity build ID is $teamcityBuildId!"
 fi
 
 source ./depends.sh
 source ./project/$projectName/config.sh
+source ./project/$projectName/UpgradeConfig.sh
 
 dependCnt=${#depends[*]}
 patchsCnt=${#patchs[*]}
@@ -340,10 +342,11 @@ GetOrBuildFw() {
 GetFwFromLocal() {
    cd $workDir
    rptFile=$projectName\_rpt
-   cp $workDir/../project/$projectName/bin/boa                 $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/../.bin -f
-   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/../.bin -f
+   cp $workDir/../project/$projectName/bin/boa                 $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/firmware.bit -f
+   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/project/$projectName/bin/ -f
    cd $workDir
 }
 
@@ -393,16 +396,15 @@ BuildBootBin() {
    fi
 
    cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf $workDir/project/$projectName/bin
-   cd $workDir
 
    sleep 10
    # Build BOOT.BIN
-   cd .build/project/$projectName/bin
+   cp sw_workspace/$projectName\_fsbl/Debug/$projectName\_fsbl.elf ./ -f
 
    echo "the_ROM_image:"                           >> image.bif
    echo "{"                                        >> image.bif
    echo "   [bootloader]./"$projectName"_fsbl.elf" >> image.bif
-   echo "   ./$projectName.bit"                    >> image.bif
+   #echo "   ./$projectName.bit"                    >> image.bif
    if [[ ! $elf -eq 'uboot' ]]; then
       echo "   ./"$elf"\_sw.elf"                   >> image.bif
    else
@@ -416,7 +418,7 @@ BuildBootBin() {
    else
       xsdk -batch -source RunBoot.tcl
    fi
-   cp BOOT.BIN $workDir/project/$projectName/bin
+   cp BOOT.BIN $workDir/project/$projectName/bin -f
 
    cd $workDir
 }
@@ -549,6 +551,11 @@ PushUpgradeFile() {
          fi
       done
    fi
+
+   rm -rf $workDir/.upgrade
+   mkdir $workDir/.upgrade
+   mv $projectName\_upgrade.tar.gz $workDir/.upgrade/$projectName\_$teamcityBuildId\_upgrade.tar.gz
+
    cd $workDir
 }
 
