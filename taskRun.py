@@ -71,12 +71,12 @@ if __name__ == "__main__":
       else:
          os.makedirs( resPath + projectItems[i] )
          os.chdir( taskPath + projectItems[i] )
-         os.system( 'make' )
-         os.system( './top.sim > result.log' )
+         os.system( 'make sim' )
+         os.system( 'make clean' )
          os.chdir( workPath )
          for path, dirs, files in os.walk( taskPath + projectItems[i], topdown = False ):
             for name in files:
-               if ".log" or ".res" in name:
+               if not "Makefile" in name:
                   fileSrcPath = os.path.join( path, name )
                   fileDestPath = os.path.join( resPath + projectItems[i], name )
                   shutil.copy( fileSrcPath, fileDestPath )

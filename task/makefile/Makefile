@@ -4,7 +4,13 @@ SRC = ../../code/firmware/model/*.v
 CC = iverilog
 CC_FLAGS = -Wall
 
-all:top.sim
+all: top.sim
 
-top.sim: ./t_autobus.v $(SRC)
-	$(CC) $(CC_FLAGS) -I../../code/firmware -o top.sim ./t_autobus.v $(SRC)
+top.sim: ../../sim/t_autobus/t_autobus.v $(SRC)
+	$(CC) $(CC_FLAGS) -I../../code/firmware -o top.sim ../../sim/t_autobus/t_autobus.v $(SRC)
+
+sim: top.sim
+	./top.sim > result.log
+
+clean:
+	rm -f top.sim
