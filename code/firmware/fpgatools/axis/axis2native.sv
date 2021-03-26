@@ -8,6 +8,7 @@
 //  1.0    Qiwei Wu       Apr. 15, 2020     Initial Release
 //*****************************************************************************
 
+`ifndef IVERILOG
 module axis2native
 #(
    parameter               DWID       = 24,
@@ -130,3 +131,4 @@ u_fifo
 );
 
 endmodule
+`endif

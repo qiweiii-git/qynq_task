@@ -56,7 +56,7 @@ if __name__ == "__main__":
       projectItems = os.listdir( taskPath )
       projectNum = len( projectItems )
    else:
-      projectItems[0] = options.projectName
+      projectItems = [options.projectName]
       projectNum = 1
 
    print( "%d projects need to be built" % ( projectNum ) )

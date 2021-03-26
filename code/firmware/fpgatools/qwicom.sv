@@ -377,21 +377,63 @@ assign DO = (RST)? DEFAULT : DI;
 
 endmodule
 
-
-/*
 // ****************************************************************************
 // event_meter.sv
 // ****************************************************************************
 module event_meter
-#(
-
-)
 (
+   input                   CLK,
+   input                   CLR,
+   input                   CLK_EVENT,
+   input                   EVENT,
+   output     [31:0]       EVENT_METER
+);
 
+wire        event_p;
+wire        rst;
+reg  [31:0] event_cnt;
+wire [31:0] event_cnt_plus;
+
+edge_detect u_edge_detect
+(
+   .CLK     ( CLK_EVENT ),
+   .DI      ( EVENT ),
+   .DP      ( event_p ),
+   .DN      ( )
+);
+
+sync_clock #(
+   .DWID ( 1 )
+) rst_sync (
+   .CLK  ( CLK_EVENT ),
+   .DI   ( CLR ),
+   .DO   ( rst )
+);
+
+always @(posedge CLK_EVENT)
+begin
+   event_cnt <= event_cnt_plus;
+end
+
+plus1 #(
+   .DWID ( 32 ),
+   .LOOP ( "false" )
+) rd_ptr_plus1 (
+   .CLR  ( rst ),
+   .EN   ( event_p ),
+   .DI   ( event_cnt ),
+   .DO   ( event_cnt_plus )
+);
+
+sync_clock #(
+   .DWID ( 32 )
+) event_sync (
+   .CLK  ( CLK ),
+   .DI   ( event_cnt ),
+   .DO   ( EVENT_METER )
 );
 
 endmodule
-*/
 
 // ****************************************************************************
 // edge_detect.sv
