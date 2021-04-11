@@ -256,6 +256,7 @@ BuildRootfs() {
 
    sudo cp $workDir/code/rootfs/etc tmp_mnt/ -rf
    sudo cp $workDir/code/rootfs/var tmp_mnt/ -rf
+   sudo cp $workDir/code/rootfs/usr tmp_mnt/ -rf
 
    if [[ appCnt > 0 ]]; then
       for((i=0; i<appCnt; i=i+2))
@@ -278,8 +279,6 @@ BuildRootfs() {
          sudo cp $workDir/project/$projectName/bin/$drvName.ko tmp_mnt/lib/modules
       done
    fi
-
-   sudo cp $workDir/project/$projectName/bin/boa tmp_mnt/usr/sbin/
 
    sudo umount tmp_mnt/
    gzip arm_ramdisk.image
@@ -341,12 +340,10 @@ GetOrBuildFw() {
 #*****************************************************************************
 GetFwFromLocal() {
    cd $workDir
-   rptFile=$projectName\_rpt
-   cp $workDir/../project/$projectName/bin/boa                 $workDir/project/$projectName/bin/ -f
-   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/ -f
-   cp $workDir/../project/$projectName/bin/$projectName.bit    $workDir/project/$projectName/bin/firmware.bit -f
-   cp $workDir/../project/$projectName/bin/$projectName.hdf    $workDir/project/$projectName/bin/ -f
-   cp $workDir/../project/$projectName/bin/$rptFile.tar.gz     $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmare/platform/firmware.bit           $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmare/platform/firmware.bit           $workDir/project/$projectName/bin/firmware.bit -f
+   cp $workDir/../code/firmare/platform/firmware.hdf           $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmare/platform/firmware_rpt.tar.gz    $workDir/project/$projectName/bin/ -f
    cd $workDir
 }
 
