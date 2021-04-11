@@ -340,10 +340,10 @@ GetOrBuildFw() {
 #*****************************************************************************
 GetFwFromLocal() {
    cd $workDir
-   cp $workDir/../code/firmare/platform/firmware.bit           $workDir/project/$projectName/bin/ -f
-   cp $workDir/../code/firmare/platform/firmware.bit           $workDir/project/$projectName/bin/firmware.bit -f
-   cp $workDir/../code/firmare/platform/firmware.hdf           $workDir/project/$projectName/bin/ -f
-   cp $workDir/../code/firmare/platform/firmware_rpt.tar.gz    $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmware/platform/firmware.bit        $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmware/platform/firmware.bit        $workDir/project/$projectName/bin/firmware.bit -f
+   cp $workDir/../code/firmware/platform/firmware.hdf        $workDir/project/$projectName/bin/ -f
+   cp $workDir/../code/firmware/platform/firmware_rpt.tar.gz $workDir/project/$projectName/bin/ -f
    cd $workDir
 }
 
