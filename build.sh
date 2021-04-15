@@ -352,27 +352,27 @@ GetFwFromLocal() {
 #*****************************************************************************
 BuildFw() {
    cd $workDir
-   cp -f code/firmware/build/Run.tcl .build/project/$projectName
+   cp -f code/firmware/build/Run.tcl .build/code/firmware/build
 
-   cd .build/project/$projectName
+   cd .build/code/firmware/build
    if [[ $ver -eq '2020' ]]; then
-      echo "RunFw $projectName xc7z020clg400-2 0 2020 " >> Run.tcl
+      echo "RunFw platform xc7z020clg400-2 0 2020 " >> Run.tcl
    else
-      echo "RunFw $projectName xc7z020clg400-2 0 2015" >> Run.tcl
+      echo "RunFw platform xc7z020clg400-2 0 2015" >> Run.tcl
    fi
    vivado -mode batch -source Run.tcl
 
-   cp $projectName.runs/impl_1/$projectName.bit $workDir/project/$projectName/bin
+   cp platform.runs/impl_1/platform.bit $workDir/code/firmware/platform/firmware.bit
 
-   tar -zcvf $projectName\_rpt.tar.gz \
-      $projectName.runs/impl_1/$projectName\_timing_summary_routed.rpt \
-      $projectName.runs/impl_1/$projectName\_utilization_placed.rpt
-   cp $projectName\_rpt.tar.gz $workDir/project/$projectName/bin
+   tar -zcvf platform_rpt.tar.gz \
+      platform.runs/impl_1/platform_timing_summary_routed.rpt \
+      platform.runs/impl_1/platform_utilization_placed.rpt
+   cp platform_rpt.tar.gz $workDir/code/firmware/platform/firmware_rpt.tar.gz
 
    if [[ $ver -eq '2020' ]]; then
-      cp $projectName.sdk/$projectName.xsa $workDir/project/$projectName/bin
+      cp platform.sdk/platform.xsa $workDir/code/firmware/platform/firmware.xsa
    else
-      cp $projectName.sdk/$projectName.hdf $workDir/project/$projectName/bin
+      cp platform.sdk/platform.hdf $workDir/code/firmware/platform/firmware.hdf
    fi
    cd $workDir
 }
@@ -573,7 +573,6 @@ fi
 if [[ $buildFw -eq 1 ]]; then
    if [[ $teamcityBuild == 1 ]]; then
       echo "We would not build Firmware in teamcity since we do not have enough memory!"
-      #GetOrBuildFw
       GetFwFromLocal
    else
       MkdirBuild

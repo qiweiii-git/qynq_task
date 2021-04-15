@@ -1,13 +1,13 @@
 //*****************************************************************************
-//    # #              Name   : qynq07_sdp2hdmi.sv
+//    # #              Name   : platform.sv
 //  #     #            Date   : Dec. 27, 2020
 // #    #  #  #     #  Author : Qiwei Wu
 //  #     #  # #  # #  Version: 1.0
 //    # #  #    #   #
-// This module is the top wrapper of qynq07_sdp2hdmi project.
+// This module is the top wrapper of platform project.
 //*****************************************************************************
 
-module qynq07_sdp2hdmi
+module platform
 (
    // 50Mhz input
    input              CLK,
