@@ -26,6 +26,8 @@ chmod 777 /var/www/cgi-bin/upload.cgi
 chmod 777 /usr/sbin/boa
 chmod 777 /usr/sbin/regrw
 chmod 777 /usr/sbin/qynq07_sdp2hdmi
+chmod 777 /usr/sbin/ovss
 
 echo "starting apps"
-qynq07_sdp2hdmi &
+#qynq07_sdp2hdmi &
+ovss &

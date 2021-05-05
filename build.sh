@@ -159,6 +159,14 @@ BuildUboot() {
 }
 
 #*****************************************************************************
+# Get u-boot
+#*****************************************************************************
+GetUboot() {
+   cd $workDir
+   cp $workDir/code/files/u-boot $workDir/project/$projectName/bin
+}
+
+#*****************************************************************************
 # Build kernel
 #*****************************************************************************
 BuildKernel() {
@@ -179,6 +187,15 @@ BuildKernel() {
    dtc -I dts -O dtb -o devicetree.dtb qynq.dts
    cp devicetree.dtb $workDir/project/$projectName/bin
    cd $workDir
+}
+
+#*****************************************************************************
+# Get kernel
+#*****************************************************************************
+GetKernelFile() {
+   cd $workDir
+   cp $workDir/code/files/uImage $workDir/project/$projectName/bin
+   cp $workDir/code/files/devicetree.dtb $workDir/project/$projectName/bin
 }
 
 #*****************************************************************************
@@ -571,12 +588,12 @@ if [ ! -d $workDir/project/$projectName/bin ]; then
 fi
 
 if [[ $buildFw -eq 1 ]]; then
+   MkdirBuild
+   BuildFw
+else
    if [[ $teamcityBuild == 1 ]]; then
       echo "We would not build Firmware in teamcity since we do not have enough memory!"
       GetFwFromLocal
-   else
-      MkdirBuild
-      BuildFw
    fi
 fi
 
@@ -592,25 +609,28 @@ if [[ $buildKernel -eq 1 ]]; then
    else
       BuildKernel
    fi
-
-   if [[ drvCnt > 0 ]]; then
-      for((i=0; i<drvCnt; i=i+2))
-      do
-         echo "Building ${drvs[i]}"
-         BuildDrv ${drvs[i]} ${drvs[i+1]}
-      done
-   fi
-
-   if [[ appCnt > 0 ]]; then
-      for((i=0; i<appCnt; i=i+2))
-      do
-         echo "Building ${apps[i]}"
-         BuildSw ${apps[i]} ${apps[i+1]}
-      done
-   fi
-
-   BuildRootfs
+else
+   GetKernelFile
 fi
+
+MkdirBuild
+if [[ drvCnt > 0 ]]; then
+   for((i=0; i<drvCnt; i=i+2))
+   do
+      echo "Building ${drvs[i]}"
+      BuildDrv ${drvs[i]} ${drvs[i+1]}
+   done
+fi
+
+if [[ appCnt > 0 ]]; then
+   for((i=0; i<appCnt; i=i+2))
+   do
+      echo "Building ${apps[i]}"
+      BuildSw ${apps[i]} ${apps[i+1]}
+   done
+fi
+
+BuildRootfs
 
 if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult
@@ -627,10 +647,13 @@ if [[ $buildBootBin -eq 1 ]]; then
          BuildUboot
       fi
    fi
-   sleep 10
-   MkdirBuild
-   BuildBootBin
+else
+   GetUboot
 fi
+
+sleep 10
+MkdirBuild
+BuildBootBin
 
 if [[ $teamcityBuild == 1 ]]; then
    TeamcityPushResult

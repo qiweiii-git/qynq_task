@@ -24,10 +24,12 @@ struct RegInfo_t
    u8  val;
 };
 
+unsigned int m_BaseAddress;
+
 //*****************************************************************************
 // Functions
 //*****************************************************************************
 int WriteRegArray(struct RegInfo_t *regArray);
-int CamInit();
+int CamInit(unsigned int baseAddress);
 
 #endif

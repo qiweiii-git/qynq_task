@@ -3,7 +3,7 @@
 #*****************************************************************************
 # Files
 #*****************************************************************************
-upgradeFiles=('boot.bin' 'BOOT.BIN' 
+upgradeFiles=('boot' 'BOOT.BIN' 
               'devicetree' 'devicetree.dtb' 
               'rootfs' 'uramdisk.image.gz' 
               'kernel' 'uImage'

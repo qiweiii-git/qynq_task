@@ -90,6 +90,7 @@ wire [31:0] axisi_debug_cnt;
 wire [31:0] axiso_debug_cnt;
 wire [31:0] axis_bmp_sel;
 wire [31:0] cam_status;
+wire [15:0] axis_tdata;
 wire [31:0] NULL0, NULL1, NULL2, NULL3, NULL4, NULL5;
 
 //*****************************************************************************
@@ -248,6 +249,12 @@ system u_system
    // VDMA
    .AXIS_ACLK              ( clk_100m ),
    .AXIS_RSTN              ( ~sys_rst ),
+   .AXIS_S2MM_tdata        ( {8'h0, axis_i.tdata} ),
+   .AXIS_S2MM_tkeep        ( 4'hf ),
+   .AXIS_S2MM_tlast        ( axis_i.tlast ),
+   .AXIS_S2MM_tready       ( axis_i.tready ),
+   .AXIS_S2MM_tuser        ( axis_i.tuser ),
+   .AXIS_S2MM_tvalid       ( axis_i.tvalid ),
    .AXIS_MM2S_tdata        ( axis_o.tdata ),
    .AXIS_MM2S_tkeep        ( axis_o.tkeep ),
    .AXIS_MM2S_tlast        ( axis_o.tlast ),
@@ -317,6 +324,43 @@ u_qwiregctrl
                               { reg_led_ctrl },
                               { reg_fw_ver }} )
 );
+
+//*****************************************************************************
+// OV5640 camera wrapper
+//*****************************************************************************
+cam_wrapper u_cam_wrapper
+(
+   .CLK_24M                ( clk_24m ),
+   // OV5640 camera
+   .CAM_VSYNC              ( CAM_VSYNC ),  //camera vsync
+   .CAM_HREF               ( CAM_HREF ),   //camera hsync refrence
+   .CAM_PCLK               ( CAM_PCLK ),   //camera pixel clock
+   .CAM_DATA               ( CAM_DATA ),   //camera data
+   .CAM_SCL                ( CAM_SCL ),    //camera i2c clock
+   .CAM_SDA                ( CAM_SDA ),    //camera i2c data
+   .CAM_RSTN               ( CAM_RSTN ),   //camera reset
+   .CAM_XCLK               ( CAM_XCLK ),
+   .CAM_PWDN               ( CAM_PWDN ),
+   // OV5640 configure
+   .CAM_RESET              ( reg_cam_config_en[1] ),
+   .CONFIG_EN              ( reg_cam_config_en[0] ),
+   .CONFIG_DA              ( reg_cam_config_da ),
+   // AXIS
+   .ACLK                   ( clk_100m ),
+   .AXIS_TDATA             ( axis_tdata ),
+   .AXIS_TVALID            ( axis_i.tvalid ),
+   .AXIS_TREADY            ( axis_i.tready ),
+   .AXIS_TUSER             ( axis_i.tuser ),
+   .AXIS_TLAST             ( axis_i.tlast ),
+   .AXIS_TKEEP             ( axis_i.tkeep ),
+   // Debugs
+   .STATUS                 ( cam_status ),
+   .DEBUG                  ( )
+);
+
+assign axis_i.tdata = {axis_tdata[4:0], 3'd0,   // R
+                       axis_tdata[15:11], 3'd0, // B
+                       axis_tdata[10:5], 2'd0}; // G
 
 //*****************************************************************************
 // VTG
