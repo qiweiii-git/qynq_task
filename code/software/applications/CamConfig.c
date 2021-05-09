@@ -328,11 +328,11 @@ int WriteRegArray(struct RegInfo_t *regArray)
    // wait for ready
    while(regArray[regSel].reg != 0xFFFF && errCnt < 0xFFFFFF)
    {
-      rData = regRead(m_BaseAddress + REG_CAM_CONFIG_STATUS * 0x10);
+      rData = regRead(m_BaseAddress + REG_CAM_CONFIG_STATUS);
       if((rData & 0x3) == 0x3)
       {
-         regWrite(m_BaseAddress + REG_CAM_CONFIG_DATA * 0x10, 0x78000000 | regArray[regSel].reg * 0x100 | regArray[regSel].val);
-         regWrite(m_BaseAddress + REG_CAM_CONFIG_EN * 0x10, 1);
+         regWrite(m_BaseAddress + REG_CAM_CONFIG_DATA, 0x78000000 | regArray[regSel].reg * 0x100 | regArray[regSel].val);
+         regWrite(m_BaseAddress + REG_CAM_CONFIG_EN, 1);
          printf("Camera configure 0x%x\r\n", 0x78000000 | regArray[regSel].reg * 0x100 | regArray[regSel].val);
 
          regSel++;
@@ -340,7 +340,7 @@ int WriteRegArray(struct RegInfo_t *regArray)
 
       // delay 1ms
       usleep(1000);
-      regWrite(m_BaseAddress + REG_CAM_CONFIG_EN * 0x10, 0);
+      regWrite(m_BaseAddress + REG_CAM_CONFIG_EN, 0);
       errCnt++;
    }
 
@@ -357,7 +357,7 @@ int CamInit(unsigned int baseAddress)
    m_BaseAddress = baseAddress;
 
    // wait for de-assert reset
-   rData = regRead(m_BaseAddress + REG_CAM_CONFIG_STATUS * 0x10);
+   rData = regRead(m_BaseAddress + REG_CAM_CONFIG_STATUS);
    while((rData & 0x1) != 1 && errCnt < 0xFFFFFF)
    {
       errCnt++;
