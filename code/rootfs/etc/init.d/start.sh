@@ -30,4 +30,4 @@ chmod 777 /usr/sbin/ovss
 
 echo "starting apps"
 #qynq07_sdp2hdmi &
-ovss &
+#ovss &

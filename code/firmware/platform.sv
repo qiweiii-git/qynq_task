@@ -314,7 +314,7 @@ u_qwiregctrl
    .reg_in                 ( {
                               { axis_bmp_sel },
                               { axiso_debug_cnt },
-                              { {31'h0, axis_o.tready} },
+                              { axisi_debug_cnt },
                               { clk_74p25m_cnt },
                               { cam_pclk_cnt },
                               { cam_status },
